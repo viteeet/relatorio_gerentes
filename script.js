@@ -6,7 +6,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const exportarBotao = document.getElementById("exportar-excel");
     
     let guiaAtual = "BORDEROS OPERADOS";
-    let dados = {};
+    let dados = [];
+    let ordemAscendente = true;
+    
     const colunasVisiveis = {
         "BORDEROS OPERADOS": ["data_oper", "bordero", "cedente", "empresa", "Valor Total", "Valor Liq. do", "Resultado Liquido", "tdesc", "pmpx", "Data Cadastro", "ntitulos", "gerente", "Semana mês", "DEPARA - GERENTE"],
         "CARTEIRAS EM ABERTO": ["Vencimento", "Titulo", "sacado", "cedente", "Empresa", "situacao_titulo", "valor_face", "nr_bordero", "tipo_cobranca", "valor_titulo", "gerente"],
@@ -89,11 +91,18 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function ordenarTabela(coluna) {
+        ordemAscendente = !ordemAscendente;
         dados.sort((a, b) => {
-            if (typeof a[coluna] === "number" && typeof b[coluna] === "number") {
-                return a[coluna] - b[coluna];
+            let valA = a[coluna] || "";
+            let valB = b[coluna] || "";
+            if (colunasData.includes(coluna)) {
+                valA = new Date(valA);
+                valB = new Date(valB);
+            } else if (colunasMoeda.includes(coluna)) {
+                valA = parseFloat(valA.toString().replace("R$", "").replace(",", "")) || 0;
+                valB = parseFloat(valB.toString().replace("R$", "").replace(",", "")) || 0;
             }
-            return (a[coluna] || "").toString().localeCompare((b[coluna] || "").toString(), "pt-BR", { numeric: true });
+            return ordemAscendente ? valA - valB : valB - valA;
         });
         carregarTabela();
     }
