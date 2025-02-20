@@ -3,51 +3,19 @@ document.addEventListener("DOMContentLoaded", () => {
     const menuContainer = document.createElement("div");
     menuContainer.id = "menu-tabs";
     menuContainer.classList.add("tabs-container");
-    
+
     // Remover os botões antigos
     const oldMenu = document.getElementById("menu");
     if (oldMenu) {
         oldMenu.remove();
     }
-document.addEventListener("DOMContentLoaded", () => {
-    const filtroInput = document.getElementById("filtro");
-
-    if (filtroInput) {
-        filtroInput.addEventListener("keyup", filtrarTabela);
-    }
-});
-
-function filtrarTabela() {
-    const input = document.getElementById("filtro");
-    if (!input) return;
-
-    const filtro = input.value.toLowerCase();
-    const tabela = document.querySelector("#tabela-container table");
-
-    if (!tabela) return;
-
-    const linhas = tabela.getElementsByTagName("tr");
-
-    for (let i = 1; i < linhas.length; i++) { // Ignora o cabeçalho (i = 1)
-        let celulas = linhas[i].getElementsByTagName("td");
-        let encontrou = false;
-
-        for (let j = 0; j < celulas.length; j++) {
-            if (celulas[j].innerText.toLowerCase().includes(filtro)) {
-                encontrou = true;
-                break;
-            }
-        }
-
-        linhas[i].style.display = encontrou ? "" : "none";
-    }
-}
 
     tabelaContainer.before(menuContainer); // Adiciona os botões antes das tabelas
 
     const jsonURL = "https://viteeet.github.io/relatorio_gerentes/dados.json";
 
     const colunasVisiveis = {
+        "BASE CEDENTES": ["apelido", "cnpj", "nome"],
         "BORDEROS OPERADOS": ["data_oper", "bordero", "cedente", "empresa", "Valor Total", "Valor Liq. do", "Resultado Liquido", "Data Cadastro", "ntitulos", "gerente"],
         "CARTEIRAS EM ABERTO": ["Vencimento", "Titulo", "sacado", "cedente", "Empresa", "situacao_titulo", "valor_titulo", "gerente"],
         "TITULOS QUITADOS": ["Gerente", "cedente", "Titulos", "venc0", "quitacao", "valor", "mora", "total"],
@@ -71,7 +39,7 @@ function filtrarTabela() {
                 btn.onclick = () => exibirTabela(titulo, jsonData[titulo]);
                 menuContainer.appendChild(btn);
 
-                if (index === 0) exibirTabela(titulo, jsonData[titulo]);
+                if (index === 0) exibirTabela(titulo, jsonData[titulo]); // Exibe a primeira tabela automaticamente
             });
 
         } catch (error) {
@@ -101,9 +69,15 @@ function filtrarTabela() {
         }
 
         const colunas = colunasVisiveis[titulo] || Object.keys(dados[0]);
+
+        // Adiciona o campo de busca
+        tabelaContainer.innerHTML += `
+            <input type="text" id="filtro" placeholder="Buscar..." class="search-box">
+        `;
+
         let tabelaHTML = `
             <div class="table-container">
-                <table class="table fade-in">
+                <table class="table fade-in" id="dadosTabela">
                     <thead>
                         <tr>${colunas.map(coluna => `<th>${coluna}</th>`).join("")}</tr>
                     </thead>
@@ -117,6 +91,38 @@ function filtrarTabela() {
         `;
 
         tabelaContainer.innerHTML += tabelaHTML;
+
+        // Adiciona o evento de busca após a tabela ser gerada
+        const filtroInput = document.getElementById("filtro");
+        if (filtroInput) {
+            filtroInput.addEventListener("keyup", filtrarTabela);
+        }
+    }
+
+    function filtrarTabela() {
+        const input = document.getElementById("filtro");
+        if (!input) return;
+
+        const filtro = input.value.toLowerCase();
+        const tabela = document.getElementById("dadosTabela");
+
+        if (!tabela) return;
+
+        const linhas = tabela.getElementsByTagName("tr");
+
+        for (let i = 1; i < linhas.length; i++) { // Ignora o cabeçalho (i = 1)
+            let celulas = linhas[i].getElementsByTagName("td");
+            let encontrou = false;
+
+            for (let j = 0; j < celulas.length; j++) {
+                if (celulas[j].innerText.toLowerCase().includes(filtro)) {
+                    encontrou = true;
+                    break;
+                }
+            }
+
+            linhas[i].style.display = encontrou ? "" : "none";
+        }
     }
 
     function aplicarModoEscuro() {
