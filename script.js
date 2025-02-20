@@ -8,13 +8,22 @@ document.addEventListener("DOMContentLoaded", () => {
     let dados = {};
     let guiaAtual = "";
 
-    // Carregar JSON
+    // Carregar JSON com tratamento de erro
     fetch("dados.json")
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`Erro ao carregar JSON: ${response.status}`);
+            }
+            return response.json();
+        })
         .then(json => {
+            console.log("JSON carregado com sucesso", json);
             dados = json;
             carregarMenu();
             carregarTabela(Object.keys(dados)[0]);
+        })
+        .catch(error => {
+            console.error("Erro ao carregar JSON:", error);
         });
 
     function carregarMenu() {
@@ -30,6 +39,11 @@ document.addEventListener("DOMContentLoaded", () => {
     function carregarTabela(guia) {
         guiaAtual = guia;
         tabelaContainer.innerHTML = "";
+
+        if (!dados[guia] || dados[guia].length === 0) {
+            tabelaContainer.innerHTML = "<p>Nenhum dado disponível para esta guia.</p>";
+            return;
+        }
 
         const tabela = document.createElement("table");
         tabela.border = "1";
