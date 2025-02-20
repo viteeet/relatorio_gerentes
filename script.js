@@ -41,7 +41,7 @@ document.addEventListener("DOMContentLoaded", () => {
         fetch(guias[guia])
             .then(response => response.json())
             .then(json => {
-                dados = json;
+                dados = json[guia] || [];
                 carregarTabela();
             })
             .catch(error => console.error("Erro ao carregar JSON:", error));
@@ -49,7 +49,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function carregarTabela() {
         tabelaContainer.innerHTML = "";
-        if (!dados || dados.length === 0) {
+        if (!Array.isArray(dados) || dados.length === 0) {
             tabelaContainer.innerHTML = "<p>Nenhum dado disponível.</p>";
             return;
         }
