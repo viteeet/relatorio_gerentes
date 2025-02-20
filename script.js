@@ -4,7 +4,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const modoEscuroBotao = document.getElementById("modo-escuro");
     const filtro = document.getElementById("filtro");
     const exportarBotao = document.getElementById("exportar-excel");
-    const paginaContainer = document.getElementById("pagina-container");
 
     let guiaAtual = "BORDEROS OPERADOS";
     let dados = [];
@@ -17,9 +16,6 @@ document.addEventListener("DOMContentLoaded", () => {
         "TITULOS VENCIDOS": ["GERENTE", "Cedente", "vencutil", "Vencimento", "Titulos", "SACADO_EMITENTE", "total", "VALOR_FACE", "VALOR_ATUAL", "VALOR_CORRIGIDO", "BANCO_COB", "DIAS_QTD"]
     };
 
-    const colunasData = ["data_oper", "Data Cadastro", "Vencimento", "venc0", "vencutil0", "quitacao", "vencutil"];
-    const colunasMoeda = ["Valor Total", "Valor Liq. do", "Resultado Liquido", "valor_face", "valor_titulo", "valor", "mora", "total", "Limite", "Risco", "Tranche", "Saldo p/ Operar", "Valor corrigido", "VALOR_FACE", "VALOR_ATUAL", "VALOR_CORRIGIDO"];
-
     const guias = {
         "BORDEROS OPERADOS": "borderos_operados.json",
         "CARTEIRAS EM ABERTO": "carteiras_em_aberto.json",
@@ -29,18 +25,15 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     function carregarMenu() {
-        menu.innerHTML = "";
+        menu.innerHTML = "<select id='menu-suspenso' class='menu-dropdown'></select>";
+        const menuSuspenso = document.getElementById("menu-suspenso");
         Object.keys(guias).forEach(guia => {
-            const item = document.createElement("li");
-            item.classList.add("nav-item");
-            item.innerHTML = <a class='nav-link' href='#'>${guia}</a>;
-            item.addEventListener("click", function() {
-                document.querySelectorAll(".nav-link").forEach(link => link.classList.remove("active"));
-                this.querySelector("a").classList.add("active");
-                carregarDados(guia);
-            });
-            menu.appendChild(item);
+            const option = document.createElement("option");
+            option.value = guia;
+            option.textContent = guia;
+            menuSuspenso.appendChild(option);
         });
+        menuSuspenso.addEventListener("change", () => carregarDados(menuSuspenso.value));
     }
 
     function carregarDados(guia) {
@@ -48,7 +41,7 @@ document.addEventListener("DOMContentLoaded", () => {
         fetch(guias[guia])
             .then(response => response.json())
             .then(json => {
-                dados = json[guia];
+                dados = json;
                 carregarTabela();
             })
             .catch(error => console.error("Erro ao carregar JSON:", error));
@@ -62,35 +55,24 @@ document.addEventListener("DOMContentLoaded", () => {
         }
         
         const colunas = colunasVisiveis[guiaAtual] || Object.keys(dados[0]);
-        let tabela = <table class='table table-striped table-bordered custom-table'><thead><tr>;
-        colunas.forEach(coluna => tabela += <th>${coluna}</th>);
+        let tabela = `<table class='table'><thead><tr>`;
+        colunas.forEach(coluna => tabela += `<th>${coluna}</th>`);
         tabela += "</tr></thead><tbody>";
         dados.forEach(linha => {
             tabela += "<tr>";
-            colunas.forEach(coluna => {
-                let valor = linha[coluna] || "-";
-                if (colunasData.includes(coluna)) valor = new Date(valor).toLocaleDateString("pt-BR");
-                if (colunasMoeda.includes(coluna)) valor = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(valor);
-                tabela += <td>${valor}</td>;
-            });
+            colunas.forEach(coluna => tabela += `<td>${linha[coluna] || "-"}</td>`);
             tabela += "</tr>";
         });
         tabela += "</tbody></table>";
         tabelaContainer.innerHTML = tabela;
-        ativarFiltro();
     }
 
-    function ativarFiltro() {
-        filtro.addEventListener("input", () => {
-            const termo = filtro.value.toLowerCase();
-            const linhas = tabelaContainer.querySelectorAll("tbody tr");
-            
-            linhas.forEach(linha => {
-                const textoLinha = linha.textContent.toLowerCase();
-                linha.style.display = textoLinha.includes(termo) ? "" : "none";
-            });
+    filtro.addEventListener("input", () => {
+        const termo = filtro.value.toLowerCase();
+        document.querySelectorAll("tbody tr").forEach(linha => {
+            linha.style.display = linha.textContent.toLowerCase().includes(termo) ? "" : "none";
         });
-    }
+    });
 
     modoEscuroBotao.addEventListener("click", () => {
         document.body.classList.toggle("dark-mode");
@@ -100,7 +82,7 @@ document.addEventListener("DOMContentLoaded", () => {
         let wb = XLSX.utils.book_new();
         let ws = XLSX.utils.json_to_sheet(dados);
         XLSX.utils.book_append_sheet(wb, ws, "Dados");
-        XLSX.writeFile(wb, ${guiaAtual}.xlsx);
+        XLSX.writeFile(wb, `${guiaAtual}.xlsx`);
     });
 
     carregarMenu();
