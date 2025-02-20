@@ -3,13 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - Planilha Web</title>
+    <title>Relatório Gerencial</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="styles.css">
     <style>
+        body {
+            background-color: #f8f9fa;
+        }
         #tabela-container {
             overflow-x: auto;
             max-width: 100%;
+            white-space: normal;
         }
         table {
             width: 100%;
@@ -29,6 +33,24 @@
             color: white;
             z-index: 2;
         }
+        .btn-smaller {
+            font-size: 0.85rem;
+            padding: 5px 10px;
+        }
+        .nav-link.active {
+            background-color: #0056b3 !important;
+            color: white !important;
+        }
+        .dark-mode {
+            background-color: #121212;
+            color: white;
+        }
+        .dark-mode table th {
+            background: #333;
+        }
+        .dark-mode .nav-link.active {
+            background-color: #ff9800 !important;
+        }
     </style>
 </head>
 <body class="container py-4">
@@ -41,18 +63,18 @@
     </div>
 
     <div id="dashboard" style="display: none;">
-        <header class="d-flex justify-content-between align-items-center bg-primary text-white p-3">
+        <header class="d-flex justify-content-between align-items-center bg-primary text-white p-2">
             <img src="logo.png" alt="Logo da Empresa" class="logo">
-            <h1>Dashboard - Planilha Web</h1>
-            <button id="modo-escuro" class="btn btn-dark">🌙</button>
+            <h1 class="fs-4">Relatório Gerencial</h1>
+            <button id="modo-escuro" class="btn btn-dark btn-smaller">🌙</button>
         </header>
-        <nav class="my-3">
+        <nav class="my-2">
             <ul id="menu" class="nav nav-pills"></ul>
         </nav>
         <main>
-            <div class="d-flex justify-content-between mb-3">
+            <div class="d-flex justify-content-between mb-2">
                 <input type="text" id="filtro" class="form-control w-50" placeholder="Buscar...">
-                <button id="exportar-excel" class="btn btn-success">📥 Exportar Excel</button>
+                <button id="exportar-excel" class="btn btn-success btn-smaller">📥 Exportar Excel</button>
             </div>
             <div id="tabela-container" class="table-responsive"></div>
         </main>
@@ -60,6 +82,10 @@
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
     <script>
+        document.getElementById("modo-escuro").addEventListener("click", () => {
+            document.body.classList.toggle("dark-mode");
+        });
+        
         document.getElementById("login-button").addEventListener("click", () => {
             const user = document.getElementById("username").value;
             const pass = document.getElementById("password").value;
@@ -94,7 +120,11 @@
                 const item = document.createElement("li");
                 item.classList.add("nav-item");
                 item.innerHTML = `<a class='nav-link' href='#'>${guia}</a>`;
-                item.addEventListener("click", () => carregarDados(guia));
+                item.addEventListener("click", function() {
+                    document.querySelectorAll(".nav-link").forEach(link => link.classList.remove("active"));
+                    this.querySelector("a").classList.add("active");
+                    carregarDados(guia);
+                });
                 menu.appendChild(item);
             });
         }
@@ -109,32 +139,6 @@
                 })
                 .catch(error => console.error("Erro ao carregar JSON:", error));
         }
-
-        function carregarTabela() {
-            const tabelaContainer = document.getElementById("tabela-container");
-            tabelaContainer.innerHTML = "";
-            if (!dados || dados.length === 0) {
-                tabelaContainer.innerHTML = "<p>Nenhum dado disponível.</p>";
-                return;
-            }
-            let tabela = `<table class='table table-striped table-bordered sticky-header'><thead><tr>`;
-            Object.keys(dados[0]).forEach(coluna => tabela += `<th>${coluna}</th>`);
-            tabela += "</tr></thead><tbody>";
-            dados.forEach(linha => {
-                tabela += "<tr>";
-                Object.values(linha).forEach(valor => tabela += `<td>${valor || "-"}</td>`);
-                tabela += "</tr>";
-            });
-            tabela += "</tbody></table>";
-            tabelaContainer.innerHTML = tabela;
-        }
-
-        document.getElementById("exportar-excel").addEventListener("click", () => {
-            let wb = XLSX.utils.book_new();
-            let ws = XLSX.utils.json_to_sheet(dados);
-            XLSX.utils.book_append_sheet(wb, ws, "Dados");
-            XLSX.writeFile(wb, `${guiaAtual}.xlsx`);
-        });
     </script>
 </body>
 </html>
