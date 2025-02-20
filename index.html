@@ -6,54 +6,12 @@
     <title>Relatório Gerencial</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="styles.css">
-    <style>
-        body {
-            background-color: #f8f9fa;
-        }
-        #tabela-container {
-            overflow-x: auto;
-            max-width: 100%;
-            white-space: normal;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        th, td {
-            word-wrap: break-word;
-            white-space: normal;
-            padding: 10px;
-            border: 1px solid #ccc;
-            text-align: left;
-        }
-        .sticky-header thead th {
-            position: sticky;
-            top: 0;
-            background: #007bff;
-            color: white;
-            z-index: 2;
-        }
-        .nav-link.active {
-            background-color: #ff9800 !important;
-            color: white !important;
-        }
-        .dark-mode {
-            background-color: #121212;
-            color: white;
-        }
-        .dark-mode table th {
-            background: #333;
-        }
-        .dark-mode .nav-link.active {
-            background-color: #ff9800 !important;
-        }
-    </style>
 </head>
 <body class="container py-4">
     <header class="d-flex justify-content-between align-items-center bg-primary text-white p-2 rounded">
         <img src="logo.png" alt="Logo da Empresa" class="logo">
         <h1 class="fs-4">Relatório Gerencial</h1>
-        <button id="modo-escuro" class="btn btn-outline-light">🌙 Modo Escuro</button>
+        <button id="modo-escuro" class="btn btn-primary btn-custom">🌙 Modo Escuro</button>
     </header>
     <nav class="my-3">
         <ul id="menu" class="nav nav-tabs"></ul>
@@ -61,54 +19,12 @@
     <main>
         <div class="d-flex justify-content-between mb-3">
             <input type="text" id="filtro" class="form-control w-50" placeholder="Buscar...">
-            <button id="exportar-excel" class="btn btn-outline-success">📥 Exportar Excel</button>
+            <button id="exportar-excel" class="btn btn-success btn-custom">📥 Exportar Excel</button>
         </div>
         <div id="tabela-container" class="table-responsive"></div>
     </main>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
-    <script>
-        document.getElementById("modo-escuro").addEventListener("click", () => {
-            document.body.classList.toggle("dark-mode");
-        });
-
-        let guiaAtual = "BORDEROS OPERADOS";
-        let dados = {};
-        const guias = {
-            "BASE CEDENTES": "base_cedentes.json",
-            "BORDEROS OPERADOS": "borderos_operados.json",
-            "CARTEIRAS EM ABERTO": "carteiras_em_aberto.json",
-            "TITULOS QUITADOS": "titulos_quitados.json",
-            "RISCO CEDENTE": "risco_cedente.json",
-            "TITULOS VENCIDOS": "titulos_vencidos.json"
-        };
-
-        function carregarMenu() {
-            const menu = document.getElementById("menu");
-            menu.innerHTML = "";
-            Object.keys(guias).forEach(guia => {
-                const item = document.createElement("li");
-                item.classList.add("nav-item");
-                item.innerHTML = `<a class='nav-link' href='#'>${guia}</a>`;
-                item.addEventListener("click", function() {
-                    document.querySelectorAll(".nav-link").forEach(link => link.classList.remove("active"));
-                    this.querySelector("a").classList.add("active");
-                    carregarDados(guia);
-                });
-                menu.appendChild(item);
-            });
-        }
-
-        function carregarDados(guia) {
-            guiaAtual = guia;
-            fetch(guias[guia])
-                .then(response => response.json())
-                .then(json => {
-                    dados = json[guia];
-                    carregarTabela();
-                })
-                .catch(error => console.error("Erro ao carregar JSON:", error));
-        }
-    </script>
+    <script src="script.js"></script>
 </body>
 </html>
