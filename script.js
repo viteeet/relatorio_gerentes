@@ -8,12 +8,15 @@ document.addEventListener("DOMContentLoaded", () => {
     let guiaAtual = "BORDEROS OPERADOS";
     let dados = {};
     const colunasVisiveis = {
-        "BORDEROS OPERADOS": [ "gerente", "cedente", "data_oper", "bordero",  "empresa", "Valor Total", "Valor Liq. do", "Resultado Liquido", "tdesc", "pmpx", "Data Cadastro", "ntitulos", "Semana mês"],
-        "CARTEIRAS EM ABERTO": [ "gerente","cedente","Vencimento", "Titulo", "sacado",  "Empresa", "situacao_titulo", "valor_face", "nr_bordero", "tipo_cobranca", "valor_titulo"],
+        "BORDEROS OPERADOS": ["data_oper", "bordero", "cedente", "empresa", "Valor Total", "Valor Liq. do", "Resultado Liquido", "tdesc", "pmpx", "Data Cadastro", "ntitulos", "gerente", "Semana mês", "DEPARA - GERENTE"],
+        "CARTEIRAS EM ABERTO": ["Vencimento", "Titulo", "sacado", "cedente", "Empresa", "situacao_titulo", "valor_face", "nr_bordero", "tipo_cobranca", "valor_titulo", "gerente"],
         "TITULOS QUITADOS": ["Gerente", "cedente", "Titulos", "venc0", "vencutil0", "quitacao", "valor", "mora", "total"],
-        "RISCO CEDENTE": ["gerente", "Cedente", "Limite", "Risco", "Tranche", "saldocc", "Vencidos", "Valor corrigido", "Saldo p/ Operar", "A vencer"],
+        "RISCO CEDENTE": ["gerente", "Cedente", "Limite", "Risco", "Tranche", "saldocc", "DEPARA - GERENTE", "Vencidos", "Valor corrigido", "Saldo p/ Operar", "A vencer"],
         "TITULOS VENCIDOS": ["GERENTE", "Cedente", "vencutil", "Vencimento", "Titulos", "SACADO_EMITENTE", "total", "VALOR_FACE", "VALOR_ATUAL", "VALOR_CORRIGIDO", "BANCO_COB", "DIAS_QTD"]
     };
+
+    const colunasData = ["data_oper", "Data Cadastro", "Vencimento", "venc0", "vencutil0", "quitacao", "vencutil"];
+    const colunasMoeda = ["Valor Total", "Valor Liq. do", "Resultado Liquido", "valor_face", "valor_titulo", "valor", "mora", "total", "Limite", "Risco", "Tranche", "Saldo p/ Operar", "Valor corrigido", "VALOR_FACE", "VALOR_ATUAL", "VALOR_CORRIGIDO"];
 
     const guias = {
         "BORDEROS OPERADOS": "borderos_operados.json",
@@ -22,6 +25,17 @@ document.addEventListener("DOMContentLoaded", () => {
         "RISCO CEDENTE": "risco_cedente.json",
         "TITULOS VENCIDOS": "titulos_vencidos.json"
     };
+
+    function formatarData(data) {
+        if (!data) return "-";
+        const d = new Date(data);
+        return d.toLocaleDateString("pt-BR");
+    }
+
+    function formatarMoeda(valor) {
+        if (isNaN(valor) || valor === null) return "-";
+        return new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(valor);
+    }
 
     function carregarMenu() {
         menu.innerHTML = "";
@@ -62,7 +76,12 @@ document.addEventListener("DOMContentLoaded", () => {
         tabela += "</tr></thead><tbody>";
         dados.forEach(linha => {
             tabela += "<tr>";
-            colunas.forEach(coluna => tabela += `<td>${linha[coluna] || "-"}</td>`);
+            colunas.forEach(coluna => {
+                let valor = linha[coluna] || "-";
+                if (colunasData.includes(coluna)) valor = formatarData(valor);
+                if (colunasMoeda.includes(coluna)) valor = formatarMoeda(valor);
+                tabela += `<td>${valor}</td>`;
+            });
             tabela += "</tr>";
         });
         tabela += "</tbody></table>";
