@@ -104,4 +104,34 @@ document.addEventListener("DOMContentLoaded", () => {
 
     aplicarModoEscuro();
     carregarJSON();
+
+    // Adicionar CSS para ajuste de tabela responsiva e quebra de página
+    const style = document.createElement("style");
+    style.innerHTML = `
+        .table-container {
+            overflow-x: auto;
+            max-width: 100%;
+        }
+        .table {
+            font-size: 12px;
+            white-space: nowrap;
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .table th, .table td {
+            padding: 8px;
+            text-align: left;
+            border: 1px solid #ddd;
+        }
+        .table th {
+            background-color: #007bff;
+            color: white;
+        }
+        @media print {
+            .table-container {
+                page-break-before: always;
+            }
+        }
+    `;
+    document.head.appendChild(style);
 });
