@@ -61,7 +61,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const colunas = colunasVisiveis[titulo] || Object.keys(dados[0]);
 
         let tabelaHTML = `
-            <div class="table-container">
+            <div class="table-wrapper">
                 <table class="table fade-in" id="dadosTabela">
                     <thead>
                         <tr>${colunas.map(coluna => `<th>${coluna}</th>`).join("")}</tr>
@@ -80,12 +80,12 @@ document.addEventListener("DOMContentLoaded", () => {
             texto: colunas.map(coluna => linha[coluna]?.toString().toLowerCase() || "").join(" ")
         }));
 
-        renderizarTabela(dadosTabelaAtual); // 🔥 Renderiza a tabela inicial
+        renderizarTabela(dadosTabelaAtual);
     }
 
     function renderizarTabela(dados) {
         const tabela = document.getElementById("dadosTabela").querySelector("tbody");
-        tabela.innerHTML = ""; // 🔹 Limpa antes de adicionar os novos dados
+        tabela.innerHTML = "";
 
         const fragmento = document.createDocumentFragment();
         dados.forEach(item => {
@@ -94,7 +94,7 @@ document.addEventListener("DOMContentLoaded", () => {
             fragmento.appendChild(linha);
         });
 
-        tabela.appendChild(fragmento); // 🔥 Insere tudo de uma vez no DOM (muito mais rápido!)
+        tabela.appendChild(fragmento);
     }
 
     function formatarValor(valor) {
@@ -105,14 +105,13 @@ document.addEventListener("DOMContentLoaded", () => {
         return valor;
     }
 
-    // 🔥 Busca otimizada (sem manipulação excessiva do DOM)
     function filtrarTabela() {
         const input = document.getElementById("filtro");
         if (!input || !dadosTabelaAtual.length) return;
 
         const filtro = input.value.toLowerCase().trim();
         if (filtro === "") {
-            renderizarTabela(dadosTabelaAtual); // 🔹 Se vazio, mostra todos os dados
+            renderizarTabela(dadosTabelaAtual);
             return;
         }
 
@@ -120,7 +119,6 @@ document.addEventListener("DOMContentLoaded", () => {
         renderizarTabela(filtrados);
     }
 
-    // 🔥 Vincula o evento de busca ao campo de filtro
     const filtroInput = document.getElementById("filtro");
     if (filtroInput) {
         filtroInput.addEventListener("input", filtrarTabela);
