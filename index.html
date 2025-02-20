@@ -3,22 +3,65 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Posição de Carteira</title>
+    <title>Dashboard - Planilha Web</title>
     <link rel="stylesheet" href="styles.css">
+    <style>
+        #tabela-container {
+            overflow-x: auto;
+            max-width: 100%;
+            white-space: nowrap;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            word-wrap: break-word;
+            white-space: normal;
+            padding: 10px;
+            border: 1px solid #ccc;
+            text-align: left;
+        }
+    </style>
 </head>
 <body>
-    <header>
-        <img src="logo.png" alt="Logo da Empresa" class="logo">
-        <h1>Posição de carteira - Marcos</h1>
-        <button id="modo-escuro">🌙</button>
-    </header>
-    <nav>
-        <ul id="menu"></ul>
-    </nav>
-    <main>
-        <input type="text" id="filtro" placeholder="Buscar...">
-        <div id="tabela-container"></div>
-    </main>
-    <script src="script.js"></script>
+    <div id="login-container">
+        <h2>Login</h2>
+        <input type="text" id="username" placeholder="Usuário">
+        <input type="password" id="password" placeholder="Senha">
+        <button id="login-button">Entrar</button>
+        <p id="login-error" style="color: red; display: none;">Usuário ou senha incorretos!</p>
+    </div>
+
+    <div id="dashboard" style="display: none;">
+        <header>
+            <img src="logo.png" alt="Logo da Empresa" class="logo">
+            <h1>Dashboard - Planilha Web</h1>
+            <button id="modo-escuro">🌙</button>
+        </header>
+        <nav>
+            <ul id="menu"></ul>
+        </nav>
+        <main>
+            <input type="text" id="filtro" placeholder="Buscar...">
+            <div id="tabela-container"></div>
+        </main>
+    </div>
+    
+    <script>
+        document.getElementById("login-button").addEventListener("click", () => {
+            const user = document.getElementById("username").value;
+            const pass = document.getElementById("password").value;
+            const validUser = "admin";
+            const validPass = "1234";
+
+            if (user === validUser && pass === validPass) {
+                document.getElementById("login-container").style.display = "none";
+                document.getElementById("dashboard").style.display = "block";
+            } else {
+                document.getElementById("login-error").style.display = "block";
+            }
+        });
+    </script>
 </body>
 </html>
