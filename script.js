@@ -28,17 +28,6 @@ document.addEventListener("DOMContentLoaded", () => {
         "TITULOS VENCIDOS": "titulos_vencidos.json"
     };
 
-    function formatarData(data) {
-        if (!data) return "-";
-        const d = new Date(data);
-        return d.toLocaleDateString("pt-BR");
-    }
-
-    function formatarMoeda(valor) {
-        if (isNaN(valor) || valor === null) return "-";
-        return new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(valor);
-    }
-
     function carregarMenu() {
         menu.innerHTML = "";
         Object.keys(guias).forEach(guia => {
@@ -80,25 +69,26 @@ document.addEventListener("DOMContentLoaded", () => {
             tabela += "<tr>";
             colunas.forEach(coluna => {
                 let valor = linha[coluna] || "-";
-                if (colunasData.includes(coluna)) valor = formatarData(valor);
-                if (colunasMoeda.includes(coluna)) valor = formatarMoeda(valor);
                 tabela += `<td>${valor}</td>`;
             });
             tabela += "</tr>";
         });
         tabela += "</tbody></table>";
         tabelaContainer.innerHTML = tabela;
+        ativarFiltro();
     }
 
-    filtro.addEventListener("input", () => {
-        const termo = filtro.value.toLowerCase();
-        const linhas = tabelaContainer.querySelectorAll("tbody tr");
-        
-        linhas.forEach(linha => {
-            const textoLinha = linha.textContent.toLowerCase();
-            linha.style.display = textoLinha.includes(termo) ? "" : "none";
+    function ativarFiltro() {
+        filtro.addEventListener("input", () => {
+            const termo = filtro.value.toLowerCase();
+            const linhas = tabelaContainer.querySelectorAll("tbody tr");
+            
+            linhas.forEach(linha => {
+                const textoLinha = linha.textContent.toLowerCase();
+                linha.style.display = textoLinha.includes(termo) ? "" : "none";
+            });
         });
-    });
+    }
 
     modoEscuroBotao.addEventListener("click", () => {
         document.body.classList.toggle("dark-mode");
