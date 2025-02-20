@@ -4,32 +4,13 @@ document.addEventListener("DOMContentLoaded", () => {
     const modoEscuroBotao = document.getElementById("modo-escuro");
     const filtro = document.getElementById("filtro");
     const exportarBotao = document.getElementById("exportar-excel");
-    const BASE_URL = window.location.origin + "/relatorio_gerentes/";
-
-const jsonMap = {
-    "BORDEROS OPERADOS": BASE_URL + "borderos_operados.json",
-    "CARTEIRAS EM ABERTO": BASE_URL + "carteiras_aberto.json",
-    "TITULOS QUITADOS": BASE_URL + "titulos_quitados.json",
-    "RISCO CEDENTE": BASE_URL + "risco_cedente.json",
-    "TITULOS VENCIDOS": BASE_URL + "titulos_vencidos.json"
-};
-
 
     let guiaAtual = "BORDEROS OPERADOS";
     let dados = [];
 
-    const colunasVisiveis = {
-        "BORDEROS OPERADOS": ["data_oper", "bordero", "cedente", "empresa", "Valor Total", "Valor Liq. do", "Resultado Liquido", "gerente"],
-        "CARTEIRAS EM ABERTO": ["Vencimento", "Titulo", "sacado", "cedente", "Empresa", "valor_face", "nr_bordero", "tipo_cobranca", "gerente"],
-        "TITULOS QUITADOS": ["Gerente", "cedente", "Titulos", "quitacao", "valor", "mora", "total"],
-        "RISCO CEDENTE": ["gerente", "Cedente", "Limite", "Risco", "Tranche", "Saldo p/ Operar", "Valor corrigido"],
-        "TITULOS VENCIDOS": ["GERENTE", "Cedente", "Vencimento", "Titulos", "total", "VALOR_FACE", "VALOR_ATUAL"]
-    };
-
-    // Mapear JSON por categoria
     const jsonMap = {
         "BORDEROS OPERADOS": "borderos_operados.json",
-        "CARTEIRAS EM ABERTO": "carteiras_aberto.json",
+        "CARTEIRAS EM ABERTO": "carteiras_em_aberto.json",
         "TITULOS QUITADOS": "titulos_quitados.json",
         "RISCO CEDENTE": "risco_cedente.json",
         "TITULOS VENCIDOS": "titulos_vencidos.json"
@@ -37,6 +18,7 @@ const jsonMap = {
 
     async function carregarJSON() {
         const arquivo = jsonMap[guiaAtual];
+
         if (!arquivo) {
             tabelaContainer.innerHTML = "<p>Arquivo JSON não encontrado.</p>";
             return;
@@ -44,13 +26,13 @@ const jsonMap = {
 
         try {
             const response = await fetch(arquivo);
-            if (!response.ok) throw new Error("Erro ao carregar JSON");
+            if (!response.ok) throw new Error(`Erro ao carregar JSON: ${response.status}`);
 
             dados = await response.json();
             carregarTabela();
         } catch (error) {
             console.error("Erro ao carregar JSON:", error);
-            tabelaContainer.innerHTML = "<p>Erro ao carregar dados.</p>";
+            tabelaContainer.innerHTML = "<p>Erro ao carregar os dados.</p>";
         }
     }
 
@@ -61,14 +43,14 @@ const jsonMap = {
             return;
         }
 
-        const colunas = colunasVisiveis[guiaAtual] || Object.keys(dados[0]);
-        let tabela = `<table class="table"><thead><tr>` + 
-            colunas.map(coluna => `<th>${coluna}</th>`).join("") + 
+        const colunas = Object.keys(dados[0]);
+        let tabela = `<table class="table"><thead><tr>` +
+            colunas.map(coluna => `<th>${coluna}</th>`).join("") +
             `</tr></thead><tbody>` +
-            dados.map((linha, index) => 
+            dados.map(linha =>
                 `<tr class="fade-in">` +
                 colunas.map(coluna => `<td>${linha[coluna] || "-"}</td>`).join("") +
-                `</tr>`).join("") + 
+                `</tr>`).join("") +
             `</tbody></table>`;
 
         tabelaContainer.innerHTML = tabela;
@@ -92,7 +74,7 @@ const jsonMap = {
 
     filtro.addEventListener("input", () => {
         const termo = filtro.value.toLowerCase();
-        const dadosFiltrados = dados.filter(linha => 
+        const dadosFiltrados = dados.filter(linha =>
             Object.values(linha).some(valor => String(valor).toLowerCase().includes(termo))
         );
         dados = dadosFiltrados;
