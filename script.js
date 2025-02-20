@@ -3,6 +3,13 @@ document.addEventListener("DOMContentLoaded", () => {
     const menuContainer = document.createElement("div");
     menuContainer.id = "menu-tabs";
     menuContainer.classList.add("tabs-container");
+    
+    // Remover os botões antigos
+    const oldMenu = document.getElementById("menu");
+    if (oldMenu) {
+        oldMenu.remove();
+    }
+    
     tabelaContainer.before(menuContainer); // Adiciona os botões antes das tabelas
 
     const jsonURL = "https://viteeet.github.io/relatorio_gerentes/dados.json";
@@ -34,6 +41,18 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
+    function formatarValor(coluna, valor) {
+        if (!valor) return "-";
+
+        if (coluna.toLowerCase().includes("data")) {
+            return new Date(valor).toLocaleDateString("pt-BR");
+        }
+        if (coluna.toLowerCase().includes("valor") || coluna.toLowerCase().includes("total")) {
+            return new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(valor);
+        }
+        return valor;
+    }
+
     function exibirTabela(titulo, dados) {
         tabelaContainer.innerHTML = `<h2>${titulo}</h2>`;
 
@@ -50,7 +69,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 </thead>
                 <tbody>
                     ${dados.map(linha =>
-                        `<tr>${colunas.map(coluna => `<td>${linha[coluna] || "-"}</td>`).join("")}</tr>`
+                        `<tr>${colunas.map(coluna => `<td>${formatarValor(coluna, linha[coluna])}</td>`).join("")}</tr>`
                     ).join("")}
                 </tbody>
             </table>
@@ -59,5 +78,13 @@ document.addEventListener("DOMContentLoaded", () => {
         tabelaContainer.innerHTML += tabelaHTML;
     }
 
+    // Aplicar modo escuro
+    function aplicarModoEscuro() {
+        if (localStorage.getItem("modoEscuro") === "true") {
+            document.body.classList.add("dark-mode");
+        }
+    }
+
+    aplicarModoEscuro();
     carregarJSON();
 });
