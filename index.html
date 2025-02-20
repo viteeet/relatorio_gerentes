@@ -1,53 +1,61 @@
-document.addEventListener("DOMContentLoaded", () => {
-    const tabelaContainer = document.getElementById("tabela-container");
-    const menu = document.getElementById("menu");
-    const filtro = document.getElementById("filtro");
-    const exportarBotao = document.getElementById("exportar-excel");
-
-    let guiaAtual = "BORDEROS OPERADOS";
-    let dados = [];
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Relatório Gerencial</title>
     
-    const colunasVisiveis = {
-        "BORDEROS OPERADOS": ["data_oper", "bordero", "cedente", "empresa", "Valor Total", "Valor Liq. do", "Resultado Liquido", "tdesc", "pmpx", "Data Cadastro", "ntitulos", "gerente", "Semana mês", "DEPARA - GERENTE"],
-        "CARTEIRAS EM ABERTO": ["Vencimento", "Titulo", "sacado", "cedente", "Empresa", "situacao_titulo", "valor_face", "nr_bordero", "tipo_cobranca", "valor_titulo", "gerente"],
-        "TITULOS QUITADOS": ["Gerente", "cedente", "Titulos", "venc0", "vencutil0", "quitacao", "valor", "mora", "total"],
-        "RISCO CEDENTE": ["gerente", "Cedente", "Limite", "Risco", "Tranche", "saldocc", "DEPARA - GERENTE", "Vencidos", "Valor corrigido", "Saldo p/ Operar", "A vencer"],
-        "TITULOS VENCIDOS": ["GERENTE", "Cedente", "vencutil", "Vencimento", "Titulos", "SACADO_EMITENTE", "total", "VALOR_FACE", "VALOR_ATUAL", "VALOR_CORRIGIDO", "BANCO_COB", "DIAS_QTD"]
-    };
-
-    const colunasData = ["data_oper", "Data Cadastro", "Vencimento", "venc0", "vencutil0", "quitacao", "vencutil"];
-    const colunasMoeda = ["Valor Total", "Valor Liq. do", "Resultado Liquido", "valor_face", "valor_titulo", "valor", "mora", "total", "Limite", "Risco", "Tranche", "Saldo p/ Operar", "Valor corrigido", "VALOR_FACE", "VALOR_ATUAL", "VALOR_CORRIGIDO"];
-
-    function formatarValor(coluna, valor) {
-        if (colunasData.includes(coluna) && valor) {
-            return new Date(valor).toLocaleDateString("pt-BR");
-        }
-        if (colunasMoeda.includes(coluna) && valor) {
-            return new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(valor);
-        }
-        return valor || "-";
-    }
-
-    function carregarTabela() {
-        tabelaContainer.innerHTML = "";
-        if (!Array.isArray(dados) || dados.length === 0) {
-            tabelaContainer.innerHTML = "<p>Nenhum dado disponível.</p>";
-            return;
-        }
+    <!-- Estilos -->
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div id="pagina-container" class="container">
         
-        const colunas = colunasVisiveis[guiaAtual] || Object.keys(dados[0]);
-        let tabela = `<table class='table table-striped'><thead><tr>`;
-        colunas.forEach(coluna => tabela += `<th>${coluna}</th>`);
-        tabela += "</tr></thead><tbody>";
-        dados.forEach((linha, index) => {
-            const classeLinha = index % 2 === 0 ? "linha-clara" : "linha-escura";
-            tabela += `<tr class='${classeLinha}'>`;
-            colunas.forEach(coluna => tabela += `<td>${formatarValor(coluna, linha[coluna])}</td>`);
-            tabela += "</tr>";
-        });
-        tabela += "</tbody></table>";
-        tabelaContainer.innerHTML = tabela;
-    }
+        <!-- Cabeçalho -->
+        <header class="header">
+            <div class="logo-container">
+                <img src="logo.png" alt="Logo da empresa" class="logo">
+                <h1>Relatório Gerencial</h1>
+            </div>
+            <button id="modo-escuro" class="btn btn-primary" aria-label="Ativar modo escuro">
+                <i class="fas fa-moon"></i> Modo Escuro
+            </button>
+        </header>
 
-    carregarTabela();
-});
+        <!-- Navegação -->
+        <nav class="nav-container">
+            <ul id="menu" class="nav-buttons">
+                <li><a href="#" class="nav-link"><i class="fas fa-chart-line"></i> Borderôs Operados</a></li>
+                <li><a href="#" class="nav-link"><i class="fas fa-briefcase"></i> Carteiras em Aberto</a></li>
+                <li><a href="#" class="nav-link"><i class="fas fa-check-circle"></i> Títulos Quitados</a></li>
+                <li><a href="#" class="nav-link"><i class="fas fa-exclamation-triangle"></i> Risco Cedente</a></li>
+                <li><a href="#" class="nav-link"><i class="fas fa-hourglass-half"></i> Títulos Vencidos</a></li>
+            </ul>
+
+            <div class="input-group">
+                <input type="text" id="filtro" placeholder="Buscar..." class="input-field" aria-label="Buscar relatório">
+                <button id="exportar-excel" class="btn btn-success" aria-label="Exportar para Excel">
+                    <i class="fas fa-file-excel"></i> Exportar Excel
+                </button>
+            </div>
+        </nav>
+
+        <!-- Conteúdo Principal -->
+        <main>
+            <section id="tabela-container" class="table-container">
+                <p>Carregando dados...</p>
+            </section>
+        </main>
+
+        <!-- Rodapé -->
+        <footer class="footer">
+            <p>&copy; 2025 Relatório Gerencial - Todos os direitos reservados</p>
+        </footer>
+
+    </div>
+
+    <!-- Script -->
+    <script src="script.js"></script>
+</body>
+</html>
