@@ -169,15 +169,74 @@ h1 {
 }
 
 /* ==============================
-   RODAPÉ
+   ESTILIZAÇÃO DA TABELA
 ============================== */
-.footer {
-    text-align: center;
-    padding: 10px;
+.table-wrapper {
+    overflow-x: auto;
+    max-width: 100%;
+    border-radius: 8px;
+    background: white;
+    padding: 15px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+}
+
+.table th, .table td {
+    padding: 12px;
+    border: 1px solid #ddd;
+    text-align: left;
+    word-wrap: break-word;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    max-width: 150px;
+}
+
+.table th {
     background: var(--cor-primaria);
     color: white;
+}
+
+.table tr:hover {
+    background: rgba(0, 123, 255, 0.1);
+    transition: 0.3s;
+}
+
+/* ==============================
+   ESTILO DOS BOTÕES DE ABA (TABS)
+============================== */
+.tab-button {
+    background: var(--cor-primaria);
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    margin: 5px;
     border-radius: 8px;
-    margin-top: 20px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: 0.3s;
+}
+
+.tab-button:hover {
+    background: var(--cor-hover);
+}
+
+/* ==============================
+   MODO ESCURO PARA BOTÕES
+============================== */
+body.dark-mode .tab-button {
+    background: var(--cor-botao-escuro);
+    color: var(--cor-texto-escuro);
+    border: 1px solid var(--cor-borda-escura);
+}
+
+body.dark-mode .tab-button:hover {
+    background: var(--cor-hover-escuro);
 }
 
 /* ==============================
@@ -212,7 +271,17 @@ h1 {
         width: 100%;
         margin-bottom: 10px;
     }
+
+    .table-wrapper {
+        overflow-x: scroll;
+    }
+
+    .table th, .table td {
+        font-size: 14px;
+        padding: 8px;
+    }
 }
+
 /* ==============================
    ANIMAÇÕES SUAVES
 ============================== */
@@ -229,86 +298,4 @@ h1 {
 
 .fade-in {
     animation: fadeIn 0.4s ease-in-out;
-}
-/* ==============================
-   ESTILO DOS BOTÕES
-============================== */
-.btn {
-    padding: 10px 15px;
-    border: none;
-    border-radius: 8px;
-    font-size: 16px;
-    cursor: pointer;
-    transition: 0.3s;
-}
-
-.btn-primary {
-    background: var(--cor-secundaria);
-    color: white;
-}
-
-.btn-primary:hover {
-    background: #1e7e34;
-}
-
-/* Estilização dos botões de abas/tab */
-.tab-button {
-    background: var(--cor-primaria);
-    color: white;
-    border: none;
-    padding: 10px 15px;
-    margin: 5px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 14px;
-    transition: 0.3s;
-}
-
-.tab-button:hover {
-    background: var(--cor-hover);
-}
-
-body.dark-mode .tab-button {
-    background: var(--cor-botao-escuro);
-    color: var(--cor-texto-escuro);
-    border: 1px solid var(--cor-borda-escura);
-}
-
-body.dark-mode .tab-button:hover {
-    background: var(--cor-hover-escuro);
-}
-
-/* ==============================
-   ESTILO DA TABELA
-============================== */
-.table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 15px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-}
-
-.table th, .table td {
-    padding: 12px;
-    border-bottom: 1px solid #ddd;
-    text-align: left;
-}
-
-.table th {
-    background: var(--cor-primaria);
-    color: white;
-}
-
-.table tr:hover {
-    background: rgba(0, 123, 255, 0.1);
-    transition: 0.3s;
-}
-
-/* ==============================
-   RESPONSIVIDADE
-============================== */
-@media (max-width: 768px) {
-    .table th, .table td {
-        padding: 10px;
-    }
 }
