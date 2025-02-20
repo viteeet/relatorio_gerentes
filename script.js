@@ -1,99 +1,62 @@
 document.addEventListener("DOMContentLoaded", () => {
     const tabelaContainer = document.getElementById("tabela-container");
-    const menu = document.getElementById("menu");
-    const modoEscuroBotao = document.getElementById("modo-escuro");
-    const filtro = document.getElementById("filtro");
-    const exportarBotao = document.getElementById("exportar-excel");
-
-    let guiaAtual = "BORDEROS OPERADOS";
-    let dados = [];
 
     const jsonMap = {
-        "BORDEROS OPERADOS": "borderos_operados.json",
-        "CARTEIRAS EM ABERTO": "carteiras_em_aberto.json",
-        "TITULOS QUITADOS": "titulos_quitados.json",
-        "RISCO CEDENTE": "risco_cedente.json",
-        "TITULOS VENCIDOS": "titulos_vencidos.json"
+        "BORDEROS OPERADOS": "https://viteeet.github.io/relatorio_gerentes/borderos_operados.json",
+        "CARTEIRAS EM ABERTO": "https://viteeet.github.io/relatorio_gerentes/carteiras_em_aberto.json",
+        "TITULOS QUITADOS": "https://viteeet.github.io/relatorio_gerentes/titulos_quitados.json",
+        "RISCO CEDENTE": "https://viteeet.github.io/relatorio_gerentes/risco_cedente.json",
+        "TITULOS VENCIDOS": "https://viteeet.github.io/relatorio_gerentes/titulos_vencidos.json"
     };
 
+    async function carregarTodosJSONs() {
+        tabelaContainer.innerHTML = ""; // Limpa antes de carregar
 
-   async function carregarJSON() {
-    const arquivo = jsonMap[guiaAtual];
+        for (const [titulo, url] of Object.entries(jsonMap)) {
+            try {
+                console.log(`🔄 Carregando: ${url}`);
+                const response = await fetch(url);
+                
+                if (!response.ok) throw new Error(`HTTP ${response.status}: ${response.statusText}`);
 
-    if (!arquivo) {
-        console.error(`🚨 JSON não encontrado para ${guiaAtual}`);
-        tabelaContainer.innerHTML = "<p>Arquivo JSON não encontrado.</p>";
-        return;
+                let jsonData = await response.json();
+                let dados = jsonData[titulo] || []; // Garante que estamos pegando o array correto
+
+                console.log(`✅ JSON carregado (${titulo}):`, dados);
+
+                // Criar e exibir a tabela
+                exibirTabela(titulo, dados);
+            } catch (error) {
+                console.error(`❌ Erro ao carregar ${titulo}:`, error);
+                tabelaContainer.innerHTML += `<p>Erro ao carregar os dados de <strong>${titulo}</strong>.</p>`;
+            }
+        }
     }
 
-    try {
-        console.log(`🔄 Tentando carregar: ${arquivo}`);
-        const response = await fetch(arquivo);
-
-        if (!response.ok) throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-
-        let jsonData = await response.json();
-        
-        // Se os dados vierem dentro de um objeto, pegamos o array correto
-        dados = jsonData[guiaAtual] || [];
-        
-        console.log("✅ JSON carregado e extraído:", dados);
-
-        carregarTabela();
-    } catch (error) {
-        console.error("❌ Erro ao carregar JSON:", error);
-        tabelaContainer.innerHTML = `<p>Erro ao carregar os dados: ${error.message}</p>`;
-    }
-}
-
-
-    function carregarTabela() {
-        tabelaContainer.innerHTML = "";
+    function exibirTabela(titulo, dados) {
         if (!dados.length) {
-            tabelaContainer.innerHTML = "<p>Nenhum dado disponível.</p>";
+            tabelaContainer.innerHTML += `<h2>${titulo}</h2><p>Nenhum dado disponível.</p>`;
             return;
         }
-    
-        // Pegamos dinamicamente as colunas do primeiro item
+
         const colunas = Object.keys(dados[0]);
-    
-        let tabela = `<table class="table"><thead><tr>` + 
-            colunas.map(coluna => `<th>${coluna}</th>`).join("") + 
-            `</tr></thead><tbody>` +
-            dados.map((linha, index) => 
-                `<tr class="fade-in">` +
-                colunas.map(coluna => `<td>${linha[coluna] || "-"}</td>`).join("") +
-                `</tr>`).join("") + 
-            `</tbody></table>`;
 
-    tabelaContainer.innerHTML = tabela;
-}
+        let tabelaHTML = `
+            <h2>${titulo}</h2>
+            <table class="table fade-in">
+                <thead>
+                    <tr>${colunas.map(coluna => `<th>${coluna}</th>`).join("")}</tr>
+                </thead>
+                <tbody>
+                    ${dados.map(linha =>
+                        `<tr>${colunas.map(coluna => `<td>${linha[coluna] || "-"}</td>`).join("")}</tr>`
+                    ).join("")}
+                </tbody>
+            </table>
+        `;
 
-
-    menu.addEventListener("click", (e) => {
-        if (e.target.classList.contains("nav-link")) {
-            guiaAtual = e.target.textContent.trim().toUpperCase();
-            carregarJSON();
-        }
-    });
-
-    modoEscuroBotao.addEventListener("click", () => {
-        document.body.classList.toggle("dark-mode");
-        localStorage.setItem("modoEscuro", document.body.classList.contains("dark-mode"));
-    });
-
-    if (localStorage.getItem("modoEscuro") === "true") {
-        document.body.classList.add("dark-mode");
+        tabelaContainer.innerHTML += tabelaHTML;
     }
 
-    filtro.addEventListener("input", () => {
-        const termo = filtro.value.toLowerCase();
-        const dadosFiltrados = dados.filter(linha =>
-            Object.values(linha).some(valor => String(valor).toLowerCase().includes(termo))
-        );
-        dados = dadosFiltrados;
-        carregarTabela();
-    });
-
-    carregarJSON();
+    carregarTodosJSONs();
 });
