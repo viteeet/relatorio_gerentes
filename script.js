@@ -58,6 +58,7 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
         }
 
+        // 🔥 Pegando apenas as colunas especificadas para esta tabela
         const colunas = colunasVisiveis[titulo] || Object.keys(dados[0]);
 
         let tabelaHTML = `
@@ -80,26 +81,30 @@ document.addEventListener("DOMContentLoaded", () => {
             texto: colunas.map(coluna => linha[coluna]?.toString().toLowerCase() || "").join(" ")
         }));
 
-        renderizarTabela(dadosTabelaAtual);
+        renderizarTabela(dadosTabelaAtual, colunas);
     }
 
-    function renderizarTabela(dados) {
+    function renderizarTabela(dados, colunas) {
         const tabela = document.getElementById("dadosTabela").querySelector("tbody");
         tabela.innerHTML = "";
 
         const fragmento = document.createDocumentFragment();
         dados.forEach(item => {
             const linha = document.createElement("tr");
-            linha.innerHTML = Object.values(item.original).map(valor => `<td>${formatarValor(valor)}</td>`).join("");
+            linha.innerHTML = colunas.map(coluna => `<td>${formatarValor(coluna, item.original[coluna])}</td>`).join("");
             fragmento.appendChild(linha);
         });
 
         tabela.appendChild(fragmento);
     }
 
-    function formatarValor(valor) {
+    function formatarValor(coluna, valor) {
         if (!valor) return "-";
-        if (typeof valor === "number") {
+
+        if (coluna.toLowerCase().includes("data")) {
+            return new Date(valor).toLocaleDateString("pt-BR");
+        }
+        if (coluna.toLowerCase().includes("valor") || coluna.toLowerCase().includes("total")) {
             return new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(valor);
         }
         return valor;
