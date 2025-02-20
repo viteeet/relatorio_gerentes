@@ -3,6 +3,8 @@ body {
     font-family: Arial, sans-serif;
     font-size: 14px;
     color: #333;
+    margin: 0;
+    padding: 0;
 }
 
 #pagina-container {
@@ -15,10 +17,12 @@ body {
 }
 
 header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
     background-color: #007bff;
     color: white;
     padding: 15px;
-    text-align: left;
     font-size: 18px;
     border-radius: 15px 15px 0 0;
 }
