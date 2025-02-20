@@ -14,6 +14,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const jsonURL = "https://viteeet.github.io/relatorio_gerentes/dados.json";
 
+    const colunasVisiveis = {
+        "BORDEROS OPERADOS": ["data_oper", "bordero", "cedente", "empresa", "Valor Total", "Valor Liq. do", "Resultado Liquido", "tdesc", "pmpx", "Data Cadastro", "ntitulos", "gerente"],
+        "CARTEIRAS EM ABERTO": ["Vencimento", "Titulo", "sacado", "cedente", "Empresa", "situacao_titulo", "valor_face", "nr_bordero", "tipo_cobranca", "valor_titulo", "gerente"],
+        "TITULOS QUITADOS": ["Gerente", "cedente", "Titulos", "venc0", "vencutil0", "quitacao", "valor", "mora", "total"],
+        "RISCO CEDENTE": ["gerente", "Cedente", "Limite", "Risco", "Tranche", "saldocc", "grupo_cedente", "cnpj_cedente", "DEPARA - GERENTE", "Vencidos", "Valor corrigido", "Saldo p/ Operar", "A vencer"],
+        "TITULOS VENCIDOS": ["GERENTE", "Cedente", "vencutil", "Vencimento", "Titulos", "SACADO_EMITENTE", "total", "VALOR_FACE", "VALOR_ATUAL", "VALOR_CORRIGIDO"]
+    };
+
     async function carregarJSON() {
         try {
             console.log(`🔄 Carregando JSON de: ${jsonURL}`);
@@ -23,7 +31,6 @@ document.addEventListener("DOMContentLoaded", () => {
             let jsonData = await response.json();
             console.log("✅ JSON carregado com sucesso:", jsonData);
 
-            // Criar botões de navegação para cada conjunto de dados
             Object.keys(jsonData).forEach((titulo, index) => {
                 const btn = document.createElement("button");
                 btn.textContent = titulo;
@@ -31,7 +38,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 btn.onclick = () => exibirTabela(titulo, jsonData[titulo]);
                 menuContainer.appendChild(btn);
 
-                // Exibe a primeira guia por padrão
                 if (index === 0) exibirTabela(titulo, jsonData[titulo]);
             });
 
@@ -61,7 +67,7 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
         }
 
-        const colunas = Object.keys(dados[0]);
+        const colunas = colunasVisiveis[titulo] || Object.keys(dados[0]);
         let tabelaHTML = `
             <div class="table-container">
                 <table class="table fade-in">
@@ -80,7 +86,6 @@ document.addEventListener("DOMContentLoaded", () => {
         tabelaContainer.innerHTML += tabelaHTML;
     }
 
-    // Aplicar modo escuro
     function aplicarModoEscuro() {
         if (localStorage.getItem("modoEscuro") === "true") {
             document.body.classList.add("dark-mode");
