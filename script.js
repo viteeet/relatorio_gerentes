@@ -70,11 +70,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const colunas = colunasVisiveis[titulo] || Object.keys(dados[0]);
 
-        // Adiciona o campo de busca
-        tabelaContainer.innerHTML += `
-            <input type="text" id="filtro" placeholder="Buscar..." class="search-box">
-        `;
-
         let tabelaHTML = `
             <div class="table-container">
                 <table class="table fade-in" id="dadosTabela">
@@ -91,12 +86,6 @@ document.addEventListener("DOMContentLoaded", () => {
         `;
 
         tabelaContainer.innerHTML += tabelaHTML;
-
-        // Adiciona o evento de busca após a tabela ser gerada
-        const filtroInput = document.getElementById("filtro");
-        if (filtroInput) {
-            filtroInput.addEventListener("keyup", filtrarTabela);
-        }
     }
 
     function filtrarTabela() {
@@ -123,6 +112,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
             linhas[i].style.display = encontrou ? "" : "none";
         }
+    }
+
+    // 🔥 Correção: Garante que o campo de busca seja ativado corretamente
+    const filtroInput = document.getElementById("filtro");
+    if (filtroInput) {
+        filtroInput.addEventListener("keyup", filtrarTabela);
+    } else {
+        console.error("🚨 Campo de busca não encontrado!");
     }
 
     function aplicarModoEscuro() {
