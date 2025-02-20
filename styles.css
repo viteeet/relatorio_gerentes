@@ -169,7 +169,7 @@ h1 {
 }
 
 /* ==============================
-   ESTILIZAÇÃO DA TABELA
+   ESTILO DA TABELA - AJUSTADO
 ============================== */
 .table-wrapper {
     overflow-x: auto;
@@ -183,20 +183,17 @@ h1 {
 .table {
     width: 100%;
     border-collapse: collapse;
-    table-layout: fixed;
+    table-layout: auto;
 }
 
 .table th, .table td {
     padding: 12px;
     border: 1px solid #ddd;
     text-align: left;
-    word-wrap: break-word;
-    overflow: hidden;
     white-space: nowrap;
-    text-overflow: ellipsis;
-    max-width: 150px;
 }
 
+/* 🔥 Faz as colunas se ajustarem melhor */
 .table th {
     background: var(--cor-primaria);
     color: white;
@@ -205,6 +202,18 @@ h1 {
 .table tr:hover {
     background: rgba(0, 123, 255, 0.1);
     transition: 0.3s;
+}
+
+/* 🔥 Responsividade */
+@media (max-width: 768px) {
+    .table-wrapper {
+        overflow-x: scroll;
+    }
+
+    .table th, .table td {
+        font-size: 14px;
+        padding: 8px;
+    }
 }
 
 /* ==============================
