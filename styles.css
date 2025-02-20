@@ -3,6 +3,12 @@ body {
     font-family: Arial, sans-serif;
 }
 
+.logo {
+    max-height: 50px;
+    width: auto;
+    display: block;
+}
+
 #tabela-container {
     overflow-x: auto;
     max-width: 100%;
