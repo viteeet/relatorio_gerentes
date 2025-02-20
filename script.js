@@ -9,7 +9,7 @@ document.addEventListener("DOMContentLoaded", () => {
     let guiaAtual = "";
 
     // Carregar JSON com tratamento de erro
-    fetch("dados_corrigidos.json")
+    fetch("dados.json")
         .then(response => {
             if (!response.ok) {
                 throw new Error(`Erro ao carregar JSON: ${response.status}`);
