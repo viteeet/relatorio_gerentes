@@ -1,40 +1,32 @@
 document.addEventListener("DOMContentLoaded", () => {
     const tabelaContainer = document.getElementById("tabela-container");
 
-    const jsonMap = {
-        "BORDEROS OPERADOS": "https://viteeet.github.io/relatorio_gerentes/borderos_operados.json",
-        "CARTEIRAS EM ABERTO": "https://viteeet.github.io/relatorio_gerentes/carteiras_em_aberto.json",
-        "TITULOS QUITADOS": "https://viteeet.github.io/relatorio_gerentes/titulos_quitados.json",
-        "RISCO CEDENTE": "https://viteeet.github.io/relatorio_gerentes/risco_cedente.json",
-        "TITULOS VENCIDOS": "https://viteeet.github.io/relatorio_gerentes/titulos_vencidos.json"
-    };
+    const jsonURL = "https://viteeet.github.io/relatorio_gerentes/dados.json"; // Único arquivo JSON
 
-    async function carregarTodosJSONs() {
-        tabelaContainer.innerHTML = ""; // Limpa antes de carregar
+    async function carregarJSON() {
+        try {
+            console.log(`🔄 Carregando JSON de: ${jsonURL}`);
+            const response = await fetch(jsonURL);
 
-        for (const [titulo, url] of Object.entries(jsonMap)) {
-            try {
-                console.log(`🔄 Carregando: ${url}`);
-                const response = await fetch(url);
-                
-                if (!response.ok) throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            if (!response.ok) throw new Error(`HTTP ${response.status}: ${response.statusText}`);
 
-                let jsonData = await response.json();
-                let dados = jsonData[titulo] || []; // Garante que estamos pegando o array correto
+            let jsonData = await response.json();
 
-                console.log(`✅ JSON carregado (${titulo}):`, dados);
+            console.log("✅ JSON carregado com sucesso:", jsonData);
 
-                // Criar e exibir a tabela
+            // Criar tabelas para cada conjunto de dados
+            Object.entries(jsonData).forEach(([titulo, dados]) => {
                 exibirTabela(titulo, dados);
-            } catch (error) {
-                console.error(`❌ Erro ao carregar ${titulo}:`, error);
-                tabelaContainer.innerHTML += `<p>Erro ao carregar os dados de <strong>${titulo}</strong>.</p>`;
-            }
+            });
+
+        } catch (error) {
+            console.error("❌ Erro ao carregar JSON:", error);
+            tabelaContainer.innerHTML = `<p>Erro ao carregar os dados.</p>`;
         }
     }
 
     function exibirTabela(titulo, dados) {
-        if (!dados.length) {
+        if (!Array.isArray(dados) || dados.length === 0) {
             tabelaContainer.innerHTML += `<h2>${titulo}</h2><p>Nenhum dado disponível.</p>`;
             return;
         }
@@ -58,5 +50,5 @@ document.addEventListener("DOMContentLoaded", () => {
         tabelaContainer.innerHTML += tabelaHTML;
     }
 
-    carregarTodosJSONs();
+    carregarJSON();
 });
