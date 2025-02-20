@@ -7,8 +7,15 @@ document.addEventListener("DOMContentLoaded", () => {
     
     let guiaAtual = "BORDEROS OPERADOS";
     let dados = {};
+    const colunasVisiveis = {
+        "BORDEROS OPERADOS": ["data_oper", "bordero", "cedente", "empresa", "Valor Total", "Valor Liq. do", "Resultado Liquido", "tdesc", "pmpx", "Data Cadastro", "ntitulos", "gerente", "Semana mês", "DEPARA - GERENTE"],
+        "CARTEIRAS EM ABERTO": ["Vencimento", "Titulo", "sacado", "cedente", "Empresa", "situacao_titulo", "valor_face", "nr_bordero", "tipo_cobranca", "valor_titulo", "gerente"],
+        "TITULOS QUITADOS": ["Gerente", "cedente", "Titulos", "venc0", "vencutil0", "quitacao", "valor", "mora", "total"],
+        "RISCO CEDENTE": ["gerente", "Cedente", "Limite", "Risco", "Tranche", "saldocc", "DEPARA - GERENTE", "Vencidos", "Valor corrigido", "Saldo p/ Operar", "A vencer"],
+        "TITULOS VENCIDOS": ["GERENTE", "Cedente", "vencutil", "Vencimento", "Titulos", "SACADO_EMITENTE", "total", "VALOR_FACE", "VALOR_ATUAL", "VALOR_CORRIGIDO", "BANCO_COB", "DIAS_QTD"]
+    };
+
     const guias = {
-        "BASE CEDENTES": "base_cedentes.json",
         "BORDEROS OPERADOS": "borderos_operados.json",
         "CARTEIRAS EM ABERTO": "carteiras_em_aberto.json",
         "TITULOS QUITADOS": "titulos_quitados.json",
@@ -48,12 +55,14 @@ document.addEventListener("DOMContentLoaded", () => {
             tabelaContainer.innerHTML = "<p>Nenhum dado disponível.</p>";
             return;
         }
+        
+        const colunas = colunasVisiveis[guiaAtual] || Object.keys(dados[0]);
         let tabela = `<table class='table table-striped table-bordered sticky-header'><thead><tr>`;
-        Object.keys(dados[0]).forEach(coluna => tabela += `<th>${coluna}</th>`);
+        colunas.forEach(coluna => tabela += `<th>${coluna}</th>`);
         tabela += "</tr></thead><tbody>";
         dados.forEach(linha => {
             tabela += "<tr>";
-            Object.values(linha).forEach(valor => tabela += `<td>${valor || "-"}</td>`);
+            colunas.forEach(coluna => tabela += `<td>${linha[coluna] || "-"}</td>`);
             tabela += "</tr>";
         });
         tabela += "</tbody></table>";
