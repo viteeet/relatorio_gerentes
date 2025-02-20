@@ -4,26 +4,40 @@ document.addEventListener("DOMContentLoaded", () => {
     const jsonURL = "https://viteeet.github.io/relatorio_gerentes/dados.json"; // Único arquivo JSON
 
     async function carregarJSON() {
+    try {
+        console.log(`🔄 Carregando JSON de: ${jsonURL}`);
+        const response = await fetch(jsonURL);
+
+        if (!response.ok) throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+
+        let jsonData = await response.text(); // Pegamos como texto primeiro
+
         try {
-            console.log(`🔄 Carregando JSON de: ${jsonURL}`);
-            const response = await fetch(jsonURL);
-
-            if (!response.ok) throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-
-            let jsonData = await response.json();
-
-            console.log("✅ JSON carregado com sucesso:", jsonData);
-
-            // Criar tabelas para cada conjunto de dados
-            Object.entries(jsonData).forEach(([titulo, dados]) => {
-                exibirTabela(titulo, dados);
-            });
-
-        } catch (error) {
-            console.error("❌ Erro ao carregar JSON:", error);
-            tabelaContainer.innerHTML = `<p>Erro ao carregar os dados.</p>`;
+            jsonData = JSON.parse(jsonData); // Tentamos converter para JSON
+        } catch (jsonError) {
+            throw new Error("JSON inválido ou mal formatado!");
         }
+
+        console.log("✅ JSON carregado com sucesso:", jsonData);
+
+        Object.entries(jsonData).forEach(([titulo, dados]) => {
+            if (Array.isArray(dados)) {
+                // Filtramos `NaN` antes de exibir a tabela
+                dados = dados.map(linha => {
+                    return Object.fromEntries(
+                        Object.entries(linha).map(([key, value]) => [key, isNaN(value) ? null : value])
+                    );
+                });
+                exibirTabela(titulo, dados);
+            }
+        });
+
+    } catch (error) {
+        console.error("❌ Erro ao carregar JSON:", error);
+        tabelaContainer.innerHTML = `<p>Erro ao carregar os dados: ${error.message}</p>`;
     }
+}
+
 
     function exibirTabela(titulo, dados) {
         if (!Array.isArray(dados) || dados.length === 0) {
