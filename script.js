@@ -9,7 +9,7 @@ document.addEventListener("DOMContentLoaded", () => {
     let guiaAtual = "";
 
     // Carregar JSON com tratamento de erro
-    fetch("dados.json")
+    fetch("dados_corrigidos.json")
         .then(response => {
             if (!response.ok) {
                 throw new Error(`Erro ao carregar JSON: ${response.status}`);
@@ -51,7 +51,8 @@ document.addEventListener("DOMContentLoaded", () => {
         const cabecalho = tabela.createTHead();
         const linhaCabecalho = cabecalho.insertRow();
 
-        Object.keys(dados[guia][0]).forEach(coluna => {
+        const colunas = Object.keys(dados[guia][0]);
+        colunas.forEach(coluna => {
             const th = document.createElement("th");
             th.textContent = coluna;
             linhaCabecalho.appendChild(th);
@@ -60,13 +61,14 @@ document.addEventListener("DOMContentLoaded", () => {
         const corpo = tabela.createTBody();
         dados[guia].forEach(linha => {
             const tr = corpo.insertRow();
-            Object.values(linha).forEach(valor => {
+            colunas.forEach(coluna => {
                 const td = tr.insertCell();
-                td.textContent = valor;
+                td.textContent = linha[coluna] !== null ? linha[coluna] : "-";
             });
         });
 
         tabelaContainer.appendChild(tabela);
+        console.log(`Tabela '${guia}' carregada com sucesso!`);
     }
 
     filtro.addEventListener("input", () => {
