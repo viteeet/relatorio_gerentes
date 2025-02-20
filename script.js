@@ -7,7 +7,6 @@ document.addEventListener("DOMContentLoaded", () => {
     
     let guiaAtual = "BORDEROS OPERADOS";
     let dados = [];
-    let ordemAscendente = true;
     
     const colunasVisiveis = {
         "BORDEROS OPERADOS": ["data_oper", "bordero", "cedente", "empresa", "Valor Total", "Valor Liq. do", "Resultado Liquido", "tdesc", "pmpx", "Data Cadastro", "ntitulos", "gerente", "Semana mês", "DEPARA - GERENTE"],
@@ -74,7 +73,7 @@ document.addEventListener("DOMContentLoaded", () => {
         
         const colunas = colunasVisiveis[guiaAtual] || Object.keys(dados[0]);
         let tabela = `<table class='table table-striped table-bordered sticky-header'><thead><tr>`;
-        colunas.forEach(coluna => tabela += `<th onclick='ordenarTabela("${coluna}")' style='cursor:pointer;'>${coluna} ⬍</th>`);
+        colunas.forEach(coluna => tabela += `<th>${coluna}</th>`);
         tabela += "</tr></thead><tbody>";
         dados.forEach(linha => {
             tabela += "<tr>";
@@ -88,23 +87,6 @@ document.addEventListener("DOMContentLoaded", () => {
         });
         tabela += "</tbody></table>";
         tabelaContainer.innerHTML = tabela;
-    }
-
-    function ordenarTabela(coluna) {
-        ordemAscendente = !ordemAscendente;
-        dados.sort((a, b) => {
-            let valA = a[coluna] || "";
-            let valB = b[coluna] || "";
-            if (colunasData.includes(coluna)) {
-                valA = new Date(valA);
-                valB = new Date(valB);
-            } else if (colunasMoeda.includes(coluna)) {
-                valA = parseFloat(valA.toString().replace("R$", "").replace(",", "")) || 0;
-                valB = parseFloat(valB.toString().replace("R$", "").replace(",", "")) || 0;
-            }
-            return ordemAscendente ? valA - valB : valB - valA;
-        });
-        carregarTabela();
     }
 
     modoEscuroBotao.addEventListener("click", () => {
