@@ -14,6 +14,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const jsonURL = "https://viteeet.github.io/relatorio_gerentes/dados.json";
 
+    let dadosTabelaAtual = []; // 🔹 Mantém os dados da tabela carregada
+
     const colunasVisiveis = {
         "BASE CEDENTES": ["apelido", "cnpj", "nome"],
         "BORDEROS OPERADOS": ["data_oper", "bordero", "cedente", "empresa", "Valor Total", "Valor Liq. do", "Resultado Liquido", "Data Cadastro", "ntitulos", "gerente"],
@@ -65,75 +67,63 @@ document.addEventListener("DOMContentLoaded", () => {
                         <tr>${colunas.map(coluna => `<th>${coluna}</th>`).join("")}</tr>
                     </thead>
                     <tbody>
-                        ${dados.map(linha =>
-                            `<tr>${colunas.map(coluna => `<td>${formatarValor(coluna, linha[coluna])}</td>`).join("")}</tr>`
-                        ).join("")}
                     </tbody>
                 </table>
             </div>
         `;
 
         tabelaContainer.innerHTML += tabelaHTML;
+
+        // 🔹 Salva os dados carregados para otimizar busca
+        dadosTabelaAtual = dados.map(linha => ({
+            original: linha,
+            texto: colunas.map(coluna => linha[coluna]?.toString().toLowerCase() || "").join(" ")
+        }));
+
+        renderizarTabela(dadosTabelaAtual); // 🔥 Renderiza a tabela inicial
     }
 
-    function formatarValor(coluna, valor) {
-        if (!valor) return "-";
+    function renderizarTabela(dados) {
+        const tabela = document.getElementById("dadosTabela").querySelector("tbody");
+        tabela.innerHTML = ""; // 🔹 Limpa antes de adicionar os novos dados
 
-        if (coluna.toLowerCase().includes("data")) {
-            return new Date(valor).toLocaleDateString("pt-BR");
-        }
-        if (coluna.toLowerCase().includes("valor") || coluna.toLowerCase().includes("total")) {
+        const fragmento = document.createDocumentFragment();
+        dados.forEach(item => {
+            const linha = document.createElement("tr");
+            linha.innerHTML = Object.values(item.original).map(valor => `<td>${formatarValor(valor)}</td>`).join("");
+            fragmento.appendChild(linha);
+        });
+
+        tabela.appendChild(fragmento); // 🔥 Insere tudo de uma vez no DOM (muito mais rápido!)
+    }
+
+    function formatarValor(valor) {
+        if (!valor) return "-";
+        if (typeof valor === "number") {
             return new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(valor);
         }
         return valor;
     }
 
-    // 🔥 Função de busca otimizada para evitar travamento!
+    // 🔥 Busca otimizada (sem manipulação excessiva do DOM)
     function filtrarTabela() {
-        if (!window.requestAnimationFrame) return; // Se requestAnimationFrame não existir, ignora
+        const input = document.getElementById("filtro");
+        if (!input || !dadosTabelaAtual.length) return;
 
-        requestAnimationFrame(() => {
-            const input = document.getElementById("filtro");
-            if (!input) return;
+        const filtro = input.value.toLowerCase().trim();
+        if (filtro === "") {
+            renderizarTabela(dadosTabelaAtual); // 🔹 Se vazio, mostra todos os dados
+            return;
+        }
 
-            const filtro = input.value.toLowerCase().trim();
-            const tabela = document.getElementById("dadosTabela");
-
-            if (!tabela) return;
-
-            const linhas = tabela.getElementsByTagName("tr");
-
-            if (filtro === "") {
-                // 🔹 Se o campo de busca estiver vazio, mostra todas as linhas
-                for (let i = 1; i < linhas.length; i++) {
-                    linhas[i].style.display = "";
-                }
-                return;
-            }
-
-            for (let i = 1; i < linhas.length; i++) { 
-                let celulas = linhas[i].getElementsByTagName("td");
-                let encontrou = false;
-
-                for (let j = 0; j < celulas.length; j++) {
-                    if (celulas[j].innerText.toLowerCase().includes(filtro)) {
-                        encontrou = true;
-                        break;
-                    }
-                }
-
-                if (encontrou) {
-                    linhas[i].style.display = "";
-                } else {
-                    linhas[i].style.display = "none";
-                }
-            }
-        });
+        const filtrados = dadosTabelaAtual.filter(item => item.texto.includes(filtro));
+        renderizarTabela(filtrados);
     }
 
+    // 🔥 Vincula o evento de busca ao campo de filtro
     const filtroInput = document.getElementById("filtro");
     if (filtroInput) {
-        filtroInput.addEventListener("input", filtrarTabela); // 🔥 Troquei de 'keyup' para 'input' para menos delay
+        filtroInput.addEventListener("input", filtrarTabela);
     } else {
         console.error("🚨 Campo de busca não encontrado!");
     }
