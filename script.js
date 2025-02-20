@@ -4,7 +4,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const modoEscuroBotao = document.getElementById("modo-escuro");
     const filtro = document.getElementById("filtro");
     const exportarBotao = document.getElementById("exportar-excel");
-    
+    const paginaContainer = document.getElementById("pagina-container");
+
     let guiaAtual = "BORDEROS OPERADOS";
     let dados = [];
     
@@ -72,7 +73,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
         
         const colunas = colunasVisiveis[guiaAtual] || Object.keys(dados[0]);
-        let tabela = `<table class='table table-striped table-bordered sticky-header'><thead><tr>`;
+        let tabela = `<table class='table table-striped table-bordered custom-table'><thead><tr>`;
         colunas.forEach(coluna => tabela += `<th>${coluna}</th>`);
         tabela += "</tr></thead><tbody>";
         dados.forEach(linha => {
@@ -88,6 +89,16 @@ document.addEventListener("DOMContentLoaded", () => {
         tabela += "</tbody></table>";
         tabelaContainer.innerHTML = tabela;
     }
+
+    filtro.addEventListener("input", () => {
+        const termo = filtro.value.toLowerCase();
+        const linhas = tabelaContainer.querySelectorAll("tbody tr");
+        
+        linhas.forEach(linha => {
+            const textoLinha = linha.textContent.toLowerCase();
+            linha.style.display = textoLinha.includes(termo) ? "" : "none";
+        });
+    });
 
     modoEscuroBotao.addEventListener("click", () => {
         document.body.classList.toggle("dark-mode");
