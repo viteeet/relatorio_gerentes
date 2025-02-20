@@ -69,6 +69,8 @@ document.addEventListener("DOMContentLoaded", () => {
             tabela += "<tr>";
             colunas.forEach(coluna => {
                 let valor = linha[coluna] || "-";
+                if (colunasData.includes(coluna)) valor = new Date(valor).toLocaleDateString("pt-BR");
+                if (colunasMoeda.includes(coluna)) valor = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(valor);
                 tabela += `<td>${valor}</td>`;
             });
             tabela += "</tr>";
