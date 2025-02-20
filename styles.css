@@ -91,6 +91,7 @@ tr:nth-child(even) {
     cursor: pointer;
     transition: 0.3s;
     font-size: 14px;
+    font-weight: bold;
 }
 
 .btn-primary-custom {
@@ -111,6 +112,20 @@ tr:nth-child(even) {
     background-color: #1e7e34;
 }
 
+.btn-dark-mode {
+    background-color: #444;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.btn-dark-mode:hover {
+    background-color: #222;
+}
+
 .input-group {
     display: flex;
     align-items: center;
@@ -127,15 +142,37 @@ input[type="text"] {
 }
 
 .dark-mode {
-    background-color: #121212;
+    background-color: #1c1c1c;
     color: white;
 }
 
 .dark-mode table {
     background: #222;
     color: white;
+    border-color: #444;
 }
 
 .dark-mode th {
-    background: #0056b3;
+    background: #333;
+}
+
+.dark-mode td {
+    background: #2a2a2a;
+    border-color: #444;
+}
+
+.dark-mode .btn-primary-custom {
+    background-color: #0056b3;
+}
+
+.dark-mode .btn-success-custom {
+    background-color: #1e7e34;
+}
+
+.dark-mode .btn-dark-mode {
+    background-color: #222;
+}
+
+.dark-mode .btn-dark-mode:hover {
+    background-color: #111;
 }
