@@ -20,10 +20,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const colunasMoeda = ["Valor Total", "Valor Liq. do", "Resultado Liquido", "valor_face", "valor_titulo", "valor", "mora", "total", "Limite", "Risco", "Tranche", "Saldo p/ Operar", "Valor corrigido", "VALOR_FACE", "VALOR_ATUAL", "VALOR_CORRIGIDO"];
 
     function formatarValor(coluna, valor) {
-        if (colunasData.includes(coluna)) {
+        if (colunasData.includes(coluna) && valor) {
             return new Date(valor).toLocaleDateString("pt-BR");
         }
-        if (colunasMoeda.includes(coluna)) {
+        if (colunasMoeda.includes(coluna) && valor) {
             return new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(valor);
         }
         return valor || "-";
@@ -37,7 +37,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
         
         const colunas = colunasVisiveis[guiaAtual] || Object.keys(dados[0]);
-        let tabela = `<table class='table full-width'><thead><tr>`;
+        let tabela = `<table class='table table-striped'><thead><tr>`;
         colunas.forEach(coluna => tabela += `<th>${coluna}</th>`);
         tabela += "</tr></thead><tbody>";
         dados.forEach((linha, index) => {
