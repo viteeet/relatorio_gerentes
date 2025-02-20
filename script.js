@@ -9,7 +9,40 @@ document.addEventListener("DOMContentLoaded", () => {
     if (oldMenu) {
         oldMenu.remove();
     }
-    
+document.addEventListener("DOMContentLoaded", () => {
+    const filtroInput = document.getElementById("filtro");
+
+    if (filtroInput) {
+        filtroInput.addEventListener("keyup", filtrarTabela);
+    }
+});
+
+function filtrarTabela() {
+    const input = document.getElementById("filtro");
+    if (!input) return;
+
+    const filtro = input.value.toLowerCase();
+    const tabela = document.querySelector("#tabela-container table");
+
+    if (!tabela) return;
+
+    const linhas = tabela.getElementsByTagName("tr");
+
+    for (let i = 1; i < linhas.length; i++) { // Ignora o cabeçalho (i = 1)
+        let celulas = linhas[i].getElementsByTagName("td");
+        let encontrou = false;
+
+        for (let j = 0; j < celulas.length; j++) {
+            if (celulas[j].innerText.toLowerCase().includes(filtro)) {
+                encontrou = true;
+                break;
+            }
+        }
+
+        linhas[i].style.display = encontrou ? "" : "none";
+    }
+}
+
     tabelaContainer.before(menuContainer); // Adiciona os botões antes das tabelas
 
     const jsonURL = "https://viteeet.github.io/relatorio_gerentes/dados.json";
