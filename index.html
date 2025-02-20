@@ -4,12 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - Planilha Web</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="styles.css">
     <style>
         #tabela-container {
             overflow-x: auto;
             max-width: 100%;
-            white-space: nowrap;
         }
         table {
             width: 100%;
@@ -22,32 +22,43 @@
             border: 1px solid #ccc;
             text-align: left;
         }
+        .sticky-header thead th {
+            position: sticky;
+            top: 0;
+            background: #007bff;
+            color: white;
+            z-index: 2;
+        }
     </style>
 </head>
-<body>
-    <div id="login-container">
+<body class="container py-4">
+    <div id="login-container" class="text-center">
         <h2>Login</h2>
-        <input type="text" id="username" placeholder="Usuário">
-        <input type="password" id="password" placeholder="Senha">
-        <button id="login-button">Entrar</button>
-        <p id="login-error" style="color: red; display: none;">Usuário ou senha incorretos!</p>
+        <input type="text" id="username" class="form-control my-2" placeholder="Usuário">
+        <input type="password" id="password" class="form-control my-2" placeholder="Senha">
+        <button id="login-button" class="btn btn-primary">Entrar</button>
+        <p id="login-error" class="text-danger mt-2" style="display: none;">Usuário ou senha incorretos!</p>
     </div>
 
     <div id="dashboard" style="display: none;">
-        <header>
+        <header class="d-flex justify-content-between align-items-center bg-primary text-white p-3">
             <img src="logo.png" alt="Logo da Empresa" class="logo">
             <h1>Dashboard - Planilha Web</h1>
-            <button id="modo-escuro">🌙</button>
+            <button id="modo-escuro" class="btn btn-dark">🌙</button>
         </header>
-        <nav>
-            <ul id="menu"></ul>
+        <nav class="my-3">
+            <ul id="menu" class="nav nav-pills"></ul>
         </nav>
         <main>
-            <input type="text" id="filtro" placeholder="Buscar...">
-            <div id="tabela-container"></div>
+            <div class="d-flex justify-content-between mb-3">
+                <input type="text" id="filtro" class="form-control w-50" placeholder="Buscar...">
+                <button id="exportar-excel" class="btn btn-success">📥 Exportar Excel</button>
+            </div>
+            <div id="tabela-container" class="table-responsive"></div>
         </main>
     </div>
     
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
     <script>
         document.getElementById("login-button").addEventListener("click", () => {
             const user = document.getElementById("username").value;
@@ -59,7 +70,7 @@
                 document.getElementById("login-container").style.display = "none";
                 document.getElementById("dashboard").style.display = "block";
                 carregarMenu();
-                carregarDados("BORDEROS OPERADOS"); // Carrega uma guia padrão ao entrar
+                carregarDados("BORDEROS OPERADOS");
             } else {
                 document.getElementById("login-error").style.display = "block";
             }
@@ -81,7 +92,8 @@
             menu.innerHTML = "";
             Object.keys(guias).forEach(guia => {
                 const item = document.createElement("li");
-                item.textContent = guia;
+                item.classList.add("nav-item");
+                item.innerHTML = `<a class='nav-link' href='#'>${guia}</a>`;
                 item.addEventListener("click", () => carregarDados(guia));
                 menu.appendChild(item);
             });
@@ -90,56 +102,39 @@
         function carregarDados(guia) {
             guiaAtual = guia;
             fetch(guias[guia])
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error(`Erro ao carregar JSON: ${response.status}`);
-                    }
-                    return response.json();
-                })
+                .then(response => response.json())
                 .then(json => {
-                    console.log(`JSON carregado: ${guia}`, json);
                     dados = json[guia];
                     carregarTabela();
                 })
-                .catch(error => {
-                    console.error("Erro ao carregar JSON:", error);
-                });
+                .catch(error => console.error("Erro ao carregar JSON:", error));
         }
 
         function carregarTabela() {
             const tabelaContainer = document.getElementById("tabela-container");
             tabelaContainer.innerHTML = "";
-
             if (!dados || dados.length === 0) {
-                tabelaContainer.innerHTML = "<p>Nenhum dado disponível para esta guia.</p>";
+                tabelaContainer.innerHTML = "<p>Nenhum dado disponível.</p>";
                 return;
             }
-
-            const tabela = document.createElement("table");
-            tabela.border = "1";
-
-            const cabecalho = tabela.createTHead();
-            const linhaCabecalho = cabecalho.insertRow();
-
-            const colunas = Object.keys(dados[0]);
-            colunas.forEach(coluna => {
-                const th = document.createElement("th");
-                th.textContent = coluna;
-                linhaCabecalho.appendChild(th);
-            });
-
-            const corpo = tabela.createTBody();
+            let tabela = `<table class='table table-striped table-bordered sticky-header'><thead><tr>`;
+            Object.keys(dados[0]).forEach(coluna => tabela += `<th>${coluna}</th>`);
+            tabela += "</tr></thead><tbody>";
             dados.forEach(linha => {
-                const tr = corpo.insertRow();
-                colunas.forEach(coluna => {
-                    const td = tr.insertCell();
-                    td.textContent = linha[coluna] !== null ? linha[coluna] : "-";
-                });
+                tabela += "<tr>";
+                Object.values(linha).forEach(valor => tabela += `<td>${valor || "-"}</td>`);
+                tabela += "</tr>";
             });
-
-            tabelaContainer.appendChild(tabela);
-            console.log(`Tabela '${guiaAtual}' carregada com sucesso!`);
+            tabela += "</tbody></table>";
+            tabelaContainer.innerHTML = tabela;
         }
+
+        document.getElementById("exportar-excel").addEventListener("click", () => {
+            let wb = XLSX.utils.book_new();
+            let ws = XLSX.utils.json_to_sheet(dados);
+            XLSX.utils.book_append_sheet(wb, ws, "Dados");
+            XLSX.writeFile(wb, `${guiaAtual}.xlsx`);
+        });
     </script>
 </body>
 </html>
