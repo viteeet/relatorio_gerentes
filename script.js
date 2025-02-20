@@ -63,16 +63,18 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const colunas = Object.keys(dados[0]);
         let tabelaHTML = `
-            <table class="table fade-in">
-                <thead>
-                    <tr>${colunas.map(coluna => `<th>${coluna}</th>`).join("")}</tr>
-                </thead>
-                <tbody>
-                    ${dados.map(linha =>
-                        `<tr>${colunas.map(coluna => `<td>${formatarValor(coluna, linha[coluna])}</td>`).join("")}</tr>`
-                    ).join("")}
-                </tbody>
-            </table>
+            <div class="table-container">
+                <table class="table fade-in">
+                    <thead>
+                        <tr>${colunas.map(coluna => `<th>${coluna}</th>`).join("")}</tr>
+                    </thead>
+                    <tbody>
+                        ${dados.map(linha =>
+                            `<tr>${colunas.map(coluna => `<td>${formatarValor(coluna, linha[coluna])}</td>`).join("")}</tr>`
+                        ).join("")}
+                    </tbody>
+                </table>
+            </div>
         `;
 
         tabelaContainer.innerHTML += tabelaHTML;
@@ -83,6 +85,16 @@ document.addEventListener("DOMContentLoaded", () => {
         if (localStorage.getItem("modoEscuro") === "true") {
             document.body.classList.add("dark-mode");
         }
+    }
+
+    function alternarModoEscuro() {
+        document.body.classList.toggle("dark-mode");
+        localStorage.setItem("modoEscuro", document.body.classList.contains("dark-mode"));
+    }
+
+    const botaoModoEscuro = document.getElementById("modo-escuro");
+    if (botaoModoEscuro) {
+        botaoModoEscuro.addEventListener("click", alternarModoEscuro);
     }
 
     aplicarModoEscuro();
