@@ -10,7 +10,7 @@ document.addEventListener("DOMContentLoaded", () => {
         oldMenu.remove();
     }
 
-    tabelaContainer.before(menuContainer); // Adiciona os botões antes das tabelas
+    tabelaContainer.before(menuContainer);
 
     const jsonURL = "https://viteeet.github.io/relatorio_gerentes/dados.json";
 
@@ -39,25 +39,13 @@ document.addEventListener("DOMContentLoaded", () => {
                 btn.onclick = () => exibirTabela(titulo, jsonData[titulo]);
                 menuContainer.appendChild(btn);
 
-                if (index === 0) exibirTabela(titulo, jsonData[titulo]); // Exibe a primeira tabela automaticamente
+                if (index === 0) exibirTabela(titulo, jsonData[titulo]);
             });
 
         } catch (error) {
             console.error("❌ Erro ao carregar JSON:", error);
             tabelaContainer.innerHTML = `<p>Erro ao carregar os dados.</p>`;
         }
-    }
-
-    function formatarValor(coluna, valor) {
-        if (!valor) return "-";
-
-        if (coluna.toLowerCase().includes("data")) {
-            return new Date(valor).toLocaleDateString("pt-BR");
-        }
-        if (coluna.toLowerCase().includes("valor") || coluna.toLowerCase().includes("total")) {
-            return new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(valor);
-        }
-        return valor;
     }
 
     function exibirTabela(titulo, dados) {
@@ -88,86 +76,67 @@ document.addEventListener("DOMContentLoaded", () => {
         tabelaContainer.innerHTML += tabelaHTML;
     }
 
-    function filtrarTabela() {
-        const input = document.getElementById("filtro");
-        if (!input) return;
+    function formatarValor(coluna, valor) {
+        if (!valor) return "-";
 
-        const filtro = input.value.toLowerCase();
-        const tabela = document.getElementById("dadosTabela");
-
-        if (!tabela) return;
-
-        const linhas = tabela.getElementsByTagName("tr");
-
-        for (let i = 1; i < linhas.length; i++) { // Ignora o cabeçalho (i = 1)
-            let celulas = linhas[i].getElementsByTagName("td");
-            let encontrou = false;
-
-            for (let j = 0; j < celulas.length; j++) {
-                if (celulas[j].innerText.toLowerCase().includes(filtro)) {
-                    encontrou = true;
-                    break;
-                }
-            }
-
-            linhas[i].style.display = encontrou ? "" : "none";
+        if (coluna.toLowerCase().includes("data")) {
+            return new Date(valor).toLocaleDateString("pt-BR");
         }
+        if (coluna.toLowerCase().includes("valor") || coluna.toLowerCase().includes("total")) {
+            return new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(valor);
+        }
+        return valor;
     }
 
-    // 🔥 Correção: Garante que o campo de busca seja ativado corretamente
+    // 🔥 Função de busca otimizada para evitar travamento!
+    function filtrarTabela() {
+        if (!window.requestAnimationFrame) return; // Se requestAnimationFrame não existir, ignora
+
+        requestAnimationFrame(() => {
+            const input = document.getElementById("filtro");
+            if (!input) return;
+
+            const filtro = input.value.toLowerCase().trim();
+            const tabela = document.getElementById("dadosTabela");
+
+            if (!tabela) return;
+
+            const linhas = tabela.getElementsByTagName("tr");
+
+            if (filtro === "") {
+                // 🔹 Se o campo de busca estiver vazio, mostra todas as linhas
+                for (let i = 1; i < linhas.length; i++) {
+                    linhas[i].style.display = "";
+                }
+                return;
+            }
+
+            for (let i = 1; i < linhas.length; i++) { 
+                let celulas = linhas[i].getElementsByTagName("td");
+                let encontrou = false;
+
+                for (let j = 0; j < celulas.length; j++) {
+                    if (celulas[j].innerText.toLowerCase().includes(filtro)) {
+                        encontrou = true;
+                        break;
+                    }
+                }
+
+                if (encontrou) {
+                    linhas[i].style.display = "";
+                } else {
+                    linhas[i].style.display = "none";
+                }
+            }
+        });
+    }
+
     const filtroInput = document.getElementById("filtro");
     if (filtroInput) {
-        filtroInput.addEventListener("keyup", filtrarTabela);
+        filtroInput.addEventListener("input", filtrarTabela); // 🔥 Troquei de 'keyup' para 'input' para menos delay
     } else {
         console.error("🚨 Campo de busca não encontrado!");
     }
 
-    function aplicarModoEscuro() {
-        if (localStorage.getItem("modoEscuro") === "true") {
-            document.body.classList.add("dark-mode");
-        }
-    }
-
-    function alternarModoEscuro() {
-        document.body.classList.toggle("dark-mode");
-        localStorage.setItem("modoEscuro", document.body.classList.contains("dark-mode"));
-    }
-
-    const botaoModoEscuro = document.getElementById("modo-escuro");
-    if (botaoModoEscuro) {
-        botaoModoEscuro.addEventListener("click", alternarModoEscuro);
-    }
-
-    aplicarModoEscuro();
     carregarJSON();
-
-    // Adicionar CSS para ajuste de tabela responsiva e quebra de página
-    const style = document.createElement("style");
-    style.innerHTML = `
-        .table-container {
-            overflow-x: auto;
-            max-width: 100%;
-        }
-        .table {
-            font-size: 12px;
-            white-space: nowrap;
-            width: 100%;
-            border-collapse: collapse;
-        }
-        .table th, .table td {
-            padding: 8px;
-            text-align: left;
-            border: 1px solid #ddd;
-        }
-        .table th {
-            background-color: #007bff;
-            color: white;
-        }
-        @media print {
-            .table-container {
-                page-break-before: always;
-            }
-        }
-    `;
-    document.head.appendChild(style);
 });
