@@ -5,42 +5,50 @@ document.addEventListener("DOMContentLoaded", () => {
     const filtro = document.getElementById("filtro");
     const modoEscuroBotao = document.getElementById("modo-escuro");
 
+    let guiaAtual = "BORDEROS OPERADOS";
     let dados = {};
-    let guiaAtual = "";
-
-    // Carregar JSON com tratamento de erro
-    fetch("dados.json")
-        .then(response => {
-            if (!response.ok) {
-                throw new Error(`Erro ao carregar JSON: ${response.status}`);
-            }
-            return response.json();
-        })
-        .then(json => {
-            console.log("JSON carregado com sucesso", json);
-            dados = json;
-            carregarMenu();
-            carregarTabela(Object.keys(dados)[0]);
-        })
-        .catch(error => {
-            console.error("Erro ao carregar JSON:", error);
-        });
+    const guias = {
+        "BASE CEDENTES": "base_cedentes.json",
+        "BORDEROS OPERADOS": "borderos_operados.json",
+        "CARTEIRAS EM ABERTO": "carteiras_em_aberto.json",
+        "TITULOS QUITADOS": "titulos_quitados.json",
+        "RISCO CEDENTE": "risco_cedente.json",
+        "TITULOS VENCIDOS": "titulos_vencidos.json"
+    };
 
     function carregarMenu() {
         menu.innerHTML = "";
-        Object.keys(dados).forEach(guia => {
+        Object.keys(guias).forEach(guia => {
             const item = document.createElement("li");
             item.textContent = guia;
-            item.addEventListener("click", () => carregarTabela(guia));
+            item.addEventListener("click", () => carregarDados(guia));
             menu.appendChild(item);
         });
     }
 
-    function carregarTabela(guia) {
+    function carregarDados(guia) {
         guiaAtual = guia;
+        fetch(guias[guia])
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`Erro ao carregar JSON: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(json => {
+                console.log(`JSON carregado: ${guia}`, json);
+                dados = json[guia];
+                carregarTabela();
+            })
+            .catch(error => {
+                console.error("Erro ao carregar JSON:", error);
+            });
+    }
+
+    function carregarTabela() {
         tabelaContainer.innerHTML = "";
 
-        if (!dados[guia] || dados[guia].length === 0) {
+        if (!dados || dados.length === 0) {
             tabelaContainer.innerHTML = "<p>Nenhum dado disponível para esta guia.</p>";
             return;
         }
@@ -51,7 +59,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const cabecalho = tabela.createTHead();
         const linhaCabecalho = cabecalho.insertRow();
 
-        const colunas = Object.keys(dados[guia][0]);
+        const colunas = Object.keys(dados[0]);
         colunas.forEach(coluna => {
             const th = document.createElement("th");
             th.textContent = coluna;
@@ -59,7 +67,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
 
         const corpo = tabela.createTBody();
-        dados[guia].forEach(linha => {
+        dados.forEach(linha => {
             const tr = corpo.insertRow();
             colunas.forEach(coluna => {
                 const td = tr.insertCell();
@@ -68,7 +76,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
 
         tabelaContainer.appendChild(tabela);
-        console.log(`Tabela '${guia}' carregada com sucesso!`);
+        console.log(`Tabela '${guiaAtual}' carregada com sucesso!`);
     }
 
     filtro.addEventListener("input", () => {
@@ -84,4 +92,7 @@ document.addEventListener("DOMContentLoaded", () => {
     modoEscuroBotao.addEventListener("click", () => {
         document.body.classList.toggle("dark-mode");
     });
+
+    carregarMenu();
+    carregarDados(guiaAtual);
 });
