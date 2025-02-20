@@ -1,10 +1,10 @@
-// script.js
 document.addEventListener("DOMContentLoaded", () => {
     const tabelaContainer = document.getElementById("tabela-container");
     const menu = document.getElementById("menu");
-    const filtro = document.getElementById("filtro");
     const modoEscuroBotao = document.getElementById("modo-escuro");
-
+    const filtro = document.getElementById("filtro");
+    const exportarBotao = document.getElementById("exportar-excel");
+    
     let guiaAtual = "BORDEROS OPERADOS";
     let dados = {};
     const guias = {
@@ -20,8 +20,13 @@ document.addEventListener("DOMContentLoaded", () => {
         menu.innerHTML = "";
         Object.keys(guias).forEach(guia => {
             const item = document.createElement("li");
-            item.textContent = guia;
-            item.addEventListener("click", () => carregarDados(guia));
+            item.classList.add("nav-item");
+            item.innerHTML = `<a class='nav-link' href='#'>${guia}</a>`;
+            item.addEventListener("click", function() {
+                document.querySelectorAll(".nav-link").forEach(link => link.classList.remove("active"));
+                this.querySelector("a").classList.add("active");
+                carregarDados(guia);
+            });
             menu.appendChild(item);
         });
     }
@@ -29,68 +34,41 @@ document.addEventListener("DOMContentLoaded", () => {
     function carregarDados(guia) {
         guiaAtual = guia;
         fetch(guias[guia])
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(`Erro ao carregar JSON: ${response.status}`);
-                }
-                return response.json();
-            })
+            .then(response => response.json())
             .then(json => {
-                console.log(`JSON carregado: ${guia}`, json);
                 dados = json[guia];
                 carregarTabela();
             })
-            .catch(error => {
-                console.error("Erro ao carregar JSON:", error);
-            });
+            .catch(error => console.error("Erro ao carregar JSON:", error));
     }
 
     function carregarTabela() {
         tabelaContainer.innerHTML = "";
-
         if (!dados || dados.length === 0) {
-            tabelaContainer.innerHTML = "<p>Nenhum dado disponível para esta guia.</p>";
+            tabelaContainer.innerHTML = "<p>Nenhum dado disponível.</p>";
             return;
         }
-
-        const tabela = document.createElement("table");
-        tabela.border = "1";
-
-        const cabecalho = tabela.createTHead();
-        const linhaCabecalho = cabecalho.insertRow();
-
-        const colunas = Object.keys(dados[0]);
-        colunas.forEach(coluna => {
-            const th = document.createElement("th");
-            th.textContent = coluna;
-            linhaCabecalho.appendChild(th);
-        });
-
-        const corpo = tabela.createTBody();
+        let tabela = `<table class='table table-striped table-bordered sticky-header'><thead><tr>`;
+        Object.keys(dados[0]).forEach(coluna => tabela += `<th>${coluna}</th>`);
+        tabela += "</tr></thead><tbody>";
         dados.forEach(linha => {
-            const tr = corpo.insertRow();
-            colunas.forEach(coluna => {
-                const td = tr.insertCell();
-                td.textContent = linha[coluna] !== null ? linha[coluna] : "-";
-            });
+            tabela += "<tr>";
+            Object.values(linha).forEach(valor => tabela += `<td>${valor || "-"}</td>`);
+            tabela += "</tr>";
         });
-
-        tabelaContainer.appendChild(tabela);
-        console.log(`Tabela '${guiaAtual}' carregada com sucesso!`);
+        tabela += "</tbody></table>";
+        tabelaContainer.innerHTML = tabela;
     }
-
-    filtro.addEventListener("input", () => {
-        const termo = filtro.value.toLowerCase();
-        const linhas = tabelaContainer.querySelectorAll("tbody tr");
-        
-        linhas.forEach(linha => {
-            const textoLinha = linha.textContent.toLowerCase();
-            linha.style.display = textoLinha.includes(termo) ? "" : "none";
-        });
-    });
 
     modoEscuroBotao.addEventListener("click", () => {
         document.body.classList.toggle("dark-mode");
+    });
+    
+    exportarBotao.addEventListener("click", () => {
+        let wb = XLSX.utils.book_new();
+        let ws = XLSX.utils.json_to_sheet(dados);
+        XLSX.utils.book_append_sheet(wb, ws, "Dados");
+        XLSX.writeFile(wb, `${guiaAtual}.xlsx`);
     });
 
     carregarMenu();
