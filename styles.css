@@ -169,11 +169,11 @@ h1 {
 }
 
 /* ==============================
-   ESTILO DA TABELA - AJUSTADO
+   ESTILO DA TABELA - MELHORADO
 ============================== */
 .table-wrapper {
     overflow-x: auto;
-    max-width: 100%;
+    width: 100%;
     border-radius: 8px;
     background: white;
     padding: 15px;
@@ -183,20 +183,24 @@ h1 {
 .table {
     width: 100%;
     border-collapse: collapse;
-    table-layout: auto;
+    table-layout: fixed; /* 🔹 Mantém largura uniforme */
 }
 
+/* 🔥 Ajuste melhorado para evitar cortes */
 .table th, .table td {
     padding: 12px;
     border: 1px solid #ddd;
     text-align: left;
-    white-space: nowrap;
+    white-space: normal; /* 🔹 Permite quebra de linha */
+    word-wrap: break-word; /* 🔹 Garante que o texto não saia da célula */
+    overflow: hidden;
 }
 
-/* 🔥 Faz as colunas se ajustarem melhor */
+/* 🔥 Mantém as colunas alinhadas corretamente */
 .table th {
     background: var(--cor-primaria);
     color: white;
+    text-align: center;
 }
 
 .table tr:hover {
@@ -204,7 +208,7 @@ h1 {
     transition: 0.3s;
 }
 
-/* 🔥 Responsividade */
+/* 🔥 Responsividade para evitar cortes */
 @media (max-width: 768px) {
     .table-wrapper {
         overflow-x: scroll;
@@ -213,6 +217,7 @@ h1 {
     .table th, .table td {
         font-size: 14px;
         padding: 8px;
+        white-space: nowrap; /* 🔹 Evita quebras desnecessárias */
     }
 }
 
@@ -249,7 +254,7 @@ body.dark-mode .tab-button:hover {
 }
 
 /* ==============================
-   RESPONSIVIDADE
+   RESPONSIVIDADE MELHORADA
 ============================== */
 @media (max-width: 768px) {
     .header {
