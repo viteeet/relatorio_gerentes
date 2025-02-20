@@ -51,6 +51,15 @@ body.dark-mode .table td {
 }
 
 /* ==============================
+   ESTILO DA LOGO
+============================== */
+.logo {
+    height: 40px;
+    max-width: 150px;
+    object-fit: contain;
+}
+
+/* ==============================
    ESTILO DOS BOTÕES
 ============================== */
 .btn {
