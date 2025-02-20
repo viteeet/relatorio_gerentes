@@ -16,6 +16,7 @@ document.addEventListener("DOMContentLoaded", () => {
         "TITULOS VENCIDOS": "titulos_vencidos.json"
     };
 
+
     async function carregarJSON() {
         const arquivo = jsonMap[guiaAtual];
 
