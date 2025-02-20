@@ -16,35 +16,17 @@ document.addEventListener("DOMContentLoaded", () => {
         "TITULOS VENCIDOS": ["GERENTE", "Cedente", "vencutil", "Vencimento", "Titulos", "SACADO_EMITENTE", "total", "VALOR_FACE", "VALOR_ATUAL", "VALOR_CORRIGIDO", "BANCO_COB", "DIAS_QTD"]
     };
 
-    const guias = {
-        "BORDEROS OPERADOS": "borderos_operados.json",
-        "CARTEIRAS EM ABERTO": "carteiras_em_aberto.json",
-        "TITULOS QUITADOS": "titulos_quitados.json",
-        "RISCO CEDENTE": "risco_cedente.json",
-        "TITULOS VENCIDOS": "titulos_vencidos.json"
-    };
+    const colunasData = ["data_oper", "Data Cadastro", "Vencimento", "venc0", "vencutil0", "quitacao", "vencutil"];
+    const colunasMoeda = ["Valor Total", "Valor Liq. do", "Resultado Liquido", "valor_face", "valor_titulo", "valor", "mora", "total", "Limite", "Risco", "Tranche", "Saldo p/ Operar", "Valor corrigido", "VALOR_FACE", "VALOR_ATUAL", "VALOR_CORRIGIDO"];
 
-    function carregarMenu() {
-        menu.innerHTML = "<select id='menu-suspenso' class='menu-dropdown'></select>";
-        const menuSuspenso = document.getElementById("menu-suspenso");
-        Object.keys(guias).forEach(guia => {
-            const option = document.createElement("option");
-            option.value = guia;
-            option.textContent = guia;
-            menuSuspenso.appendChild(option);
-        });
-        menuSuspenso.addEventListener("change", () => carregarDados(menuSuspenso.value));
-    }
-
-    function carregarDados(guia) {
-        guiaAtual = guia;
-        fetch(guias[guia])
-            .then(response => response.json())
-            .then(json => {
-                dados = json[guia] || [];
-                carregarTabela();
-            })
-            .catch(error => console.error("Erro ao carregar JSON:", error));
+    function formatarValor(coluna, valor) {
+        if (colunasData.includes(coluna)) {
+            return new Date(valor).toLocaleDateString("pt-BR");
+        }
+        if (colunasMoeda.includes(coluna)) {
+            return new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(valor);
+        }
+        return valor || "-";
     }
 
     function carregarTabela() {
@@ -55,36 +37,18 @@ document.addEventListener("DOMContentLoaded", () => {
         }
         
         const colunas = colunasVisiveis[guiaAtual] || Object.keys(dados[0]);
-        let tabela = `<table class='table'><thead><tr>`;
+        let tabela = `<table class='table full-width'><thead><tr>`;
         colunas.forEach(coluna => tabela += `<th>${coluna}</th>`);
         tabela += "</tr></thead><tbody>";
-        dados.forEach(linha => {
-            tabela += "<tr>";
-            colunas.forEach(coluna => tabela += `<td>${linha[coluna] || "-"}</td>`);
+        dados.forEach((linha, index) => {
+            const classeLinha = index % 2 === 0 ? "linha-clara" : "linha-escura";
+            tabela += `<tr class='${classeLinha}'>`;
+            colunas.forEach(coluna => tabela += `<td>${formatarValor(coluna, linha[coluna])}</td>`);
             tabela += "</tr>";
         });
         tabela += "</tbody></table>";
         tabelaContainer.innerHTML = tabela;
     }
 
-    filtro.addEventListener("input", () => {
-        const termo = filtro.value.toLowerCase();
-        document.querySelectorAll("tbody tr").forEach(linha => {
-            linha.style.display = linha.textContent.toLowerCase().includes(termo) ? "" : "none";
-        });
-    });
-
-    modoEscuroBotao.addEventListener("click", () => {
-        document.body.classList.toggle("dark-mode");
-    });
-    
-    exportarBotao.addEventListener("click", () => {
-        let wb = XLSX.utils.book_new();
-        let ws = XLSX.utils.json_to_sheet(dados);
-        XLSX.utils.book_append_sheet(wb, ws, "Dados");
-        XLSX.writeFile(wb, `${guiaAtual}.xlsx`);
-    });
-
-    carregarMenu();
-    carregarDados(guiaAtual);
+    carregarTabela();
 });
