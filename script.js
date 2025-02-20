@@ -4,6 +4,16 @@ document.addEventListener("DOMContentLoaded", () => {
     const modoEscuroBotao = document.getElementById("modo-escuro");
     const filtro = document.getElementById("filtro");
     const exportarBotao = document.getElementById("exportar-excel");
+    const BASE_URL = window.location.origin + "/relatorio_gerentes/";
+
+const jsonMap = {
+    "BORDEROS OPERADOS": BASE_URL + "borderos_operados.json",
+    "CARTEIRAS EM ABERTO": BASE_URL + "carteiras_aberto.json",
+    "TITULOS QUITADOS": BASE_URL + "titulos_quitados.json",
+    "RISCO CEDENTE": BASE_URL + "risco_cedente.json",
+    "TITULOS VENCIDOS": BASE_URL + "titulos_vencidos.json"
+};
+
 
     let guiaAtual = "BORDEROS OPERADOS";
     let dados = [];
