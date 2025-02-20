@@ -17,25 +17,35 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
 
-    async function carregarJSON() {
-        const arquivo = jsonMap[guiaAtual];
+   async function carregarJSON() {
+    const arquivo = jsonMap[guiaAtual];
 
-        if (!arquivo) {
-            tabelaContainer.innerHTML = "<p>Arquivo JSON não encontrado.</p>";
-            return;
-        }
-
-        try {
-            const response = await fetch(arquivo);
-            if (!response.ok) throw new Error(`Erro ao carregar JSON: ${response.status}`);
-
-            dados = await response.json();
-            carregarTabela();
-        } catch (error) {
-            console.error("Erro ao carregar JSON:", error);
-            tabelaContainer.innerHTML = "<p>Erro ao carregar os dados.</p>";
-        }
+    if (!arquivo) {
+        console.error(`🚨 JSON não encontrado para ${guiaAtual}`);
+        tabelaContainer.innerHTML = "<p>Arquivo JSON não encontrado.</p>";
+        return;
     }
+
+    try {
+        console.log(`🔄 Tentando carregar: ${arquivo}`);
+        const response = await fetch(arquivo);
+
+        if (!response.ok) throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+
+        let jsonData = await response.json();
+        
+        // Se os dados vierem dentro de um objeto, pegamos o array correto
+        dados = jsonData[guiaAtual] || [];
+        
+        console.log("✅ JSON carregado e extraído:", dados);
+
+        carregarTabela();
+    } catch (error) {
+        console.error("❌ Erro ao carregar JSON:", error);
+        tabelaContainer.innerHTML = `<p>Erro ao carregar os dados: ${error.message}</p>`;
+    }
+}
+
 
     function carregarTabela() {
         tabelaContainer.innerHTML = "";
@@ -43,19 +53,22 @@ document.addEventListener("DOMContentLoaded", () => {
             tabelaContainer.innerHTML = "<p>Nenhum dado disponível.</p>";
             return;
         }
-
+    
+        // Pegamos dinamicamente as colunas do primeiro item
         const colunas = Object.keys(dados[0]);
-        let tabela = `<table class="table"><thead><tr>` +
-            colunas.map(coluna => `<th>${coluna}</th>`).join("") +
+    
+        let tabela = `<table class="table"><thead><tr>` + 
+            colunas.map(coluna => `<th>${coluna}</th>`).join("") + 
             `</tr></thead><tbody>` +
-            dados.map(linha =>
+            dados.map((linha, index) => 
                 `<tr class="fade-in">` +
                 colunas.map(coluna => `<td>${linha[coluna] || "-"}</td>`).join("") +
-                `</tr>`).join("") +
+                `</tr>`).join("") + 
             `</tbody></table>`;
 
-        tabelaContainer.innerHTML = tabela;
-    }
+    tabelaContainer.innerHTML = tabela;
+}
+
 
     menu.addEventListener("click", (e) => {
         if (e.target.classList.contains("nav-link")) {
