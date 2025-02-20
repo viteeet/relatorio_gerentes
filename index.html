@@ -5,28 +5,31 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Relatório Gerencial</title>
     <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
-    <div id="pagina-container">
-        <header>
-            <img src="logo.png" alt="Logo" class="logo">
-            <h1>Relatório Gerencial</h1>
-            <button id="modo-escuro" class="btn-dark-mode">🌙 Modo Escuro</button>
+    <div id="pagina-container" class="container">
+        <header class="header">
+            <div class="logo-container">
+                <img src="logo.png" alt="Logo" class="logo">
+                <h1>Relatório Gerencial</h1>
+            </div>
+            <button id="modo-escuro" class="btn-dark-mode"><i class="fas fa-moon"></i> Modo Escuro</button>
         </header>
         
         <nav class="nav-container">
             <ul id="menu" class="nav-buttons"></ul>
             <div class="input-group">
-                <input type="text" id="filtro" placeholder="Buscar...">
-                <button id="exportar-excel" class="btn-success-custom">📥 Exportar Excel</button>
+                <input type="text" id="filtro" placeholder="🔍 Buscar...">
+                <button id="exportar-excel" class="btn-export"><i class="fas fa-file-excel"></i> Exportar Excel</button>
             </div>
         </nav>
 
         <main>
-            <div id="tabela-container"></div>
+            <div id="tabela-container" class="table-container"></div>
         </main>
         
-        <footer>
+        <footer class="footer">
             <p>&copy; 2025 Relatório Gerencial - Todos os direitos reservados</p>
         </footer>
     </div>
